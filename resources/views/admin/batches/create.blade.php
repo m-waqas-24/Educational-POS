@@ -62,6 +62,12 @@
                                               </div>
                                               <div class="col-md-4">
                                                 <div class="form-group">
+                                                  <label class="form-label">Batch Ending Date</label>
+                                                  <input type="date" class="form-control" name="ending_date" placeholder="Email">
+                                                </div>    
+                                              </div>
+                                              <div class="col-md-4">
+                                                <div class="form-group">
                                                   <label class="form-label">Admission Closing Date</label>
                                                   <input type="date" class="form-control" name="adm_closing_date" placeholder="Email">
                                                 </div>

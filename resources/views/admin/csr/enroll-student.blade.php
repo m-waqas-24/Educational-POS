@@ -121,7 +121,7 @@
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label class="form-label">Whatsapp</label>
-                                            <input required type="number" id="whatsapp" class="form-control" name="whatsapp" value="{{ $student ? $student->student->phone : '' }}" placeholder="Whatsapp (Without dashes)">
+                                            <input required type="text" id="whatsapp" class="form-control" name="whatsapp" value="{{ $student ? $student->student->phone : '' }}" placeholder="Whatsapp (Without dashes)">
                                             <span class="text-danger" id="phone-error"></span>
                                         </div>
                                     </div>

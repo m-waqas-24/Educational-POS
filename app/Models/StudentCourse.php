@@ -68,10 +68,11 @@ class StudentCourse extends Model
         foreach ($this->coursePayments as $payment) {
             $totalPaid += $payment->payment_first + $payment->payment_second;
         }
-    
+        
         if ($newPayment) {
             $totalPaid += $newPayment->payment_first + $newPayment->payment_second;
         }
+
         //1 for paid and 2 for partial
         $totalFee = $this->fee + $this->student->card;
         $this->status_id = ($totalPaid >= $totalFee) ? 1 : 2;

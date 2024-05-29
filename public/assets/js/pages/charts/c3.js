@@ -563,56 +563,6 @@ $(function() {
             },
         });
     });
-    $(document).ready(function(){
-        var chart = c3.generate({
-            bindto: '#chart-combination', // id of chart wrapper
-            data: {
-                columns: [
-                    // each columns data
-                    ['data1', 30, 20, 50, 40, 60, 50],
-                    ['data2', 200, 130, 90, 240, 130, 220],
-                    ['data3', 300, 200, 160, 400, 250, 250],
-                    ['data4', 200, 130, 90, 240, 130, 220]
-                ],
-                type: 'bar', // default type of chart
-                types: {
-                    'data2': "line",
-                    'data3': "spline",
-                },
-                groups: [
-                    [ 'data1', 'data4']
-                ],
-                colors: {
-                    'data1': Iconic.colors["theme-cyan1"],
-                    'data2': Iconic.colors["theme-cyan2"],
-                    'data3': Iconic.colors["theme-cyan3"],
-                    'data4': Iconic.colors["theme-cyan4"]
-                },
-                names: {
-                    // name of each serie
-                    'data1': 'Development',
-                    'data2': 'Marketing',
-                    'data3': 'Sales',
-                    'data4': 'Sales'
-                }
-            },
-            axis: {
-                x: {
-                    type: 'category',
-                    // name of each category
-                    categories: ['2013', '2014', '2015', '2016', '2017', '2018']
-                },
-            },
-            bar: {
-                width: 16
-            },
-            legend: {
-                show: true, //hide legend
-            },
-            padding: {
-                bottom: 0,
-                top: 0
-            },
-        });
-    });
+
+    
 });

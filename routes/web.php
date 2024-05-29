@@ -50,7 +50,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
     Route::controller(AdminController::class)->group(function(){
         Route::get('hold-students', 'index')->name('hold.students');
         Route::get('confirm-student/{id?}/{confirmationType?}', 'confirmStudent')->name('confirm.student');
-        Route::get('-dashboard', 'superAdminDashboard')->name('superadmin.dashboard');
+        // Route::get('-dashboard', 'superAdminDashboard')->name('superadmin.dashboard');
     });
 
     Route::controller(ImportDataController::class)->group(function(){
@@ -82,6 +82,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::put('csr-update-student/{id?}', 'updateStudent')->name('csr.update.student');
         Route::get('enroll-form/{id?}', 'enrollForm')->name('csr.enroll-student');
         Route::get('filter-status/{id?}', 'filterActionStatuses')->name('filter.action.status');
+        Route::get('filter-status-today/{id?}/{csr?}', 'filterActionStatusesTodayData')->name('filter.action.status.today');
         Route::get('filter-student', 'filterStudent')->name('filter.student');
         Route::get('filter-student-courses/{id?}', 'showStudentCourses')->name('filter.student.courses');
         Route::get('filter-followup/{id?}', 'filterFollowup')->name('filter.followup');

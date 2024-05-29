@@ -15,6 +15,7 @@ class CreateStudentCoursePaymentsTable extends Migration
     {
         Schema::create('student_course_payments', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('student_course_id')->nullable();
             $table->unsignedBigInteger('mode_first')->nullable();
             $table->unsignedBigInteger('payment_first')->nullable();

@@ -33,11 +33,11 @@
                 <div class="card">
                     <div class="body">
                         <ul class="nav nav-tabs">
-                            <li class="nav-item"><a class="nav-link @if(!isset($from)) active show @endif" data-toggle="tab" href="#Home-withicon"><i class="fa fa-home mr-2"></i> New Import Data</a></li>
-                            <li class="nav-item"><a class="nav-link @if(isset($from)) active show @endif" data-toggle="tab" href="#Profile-withicon"><i class="fa fa-user mr-2"></i> Distributed Data</a></li>
+                            <li class="nav-item"><a class="nav-link @if(!@$from && !@$course) active show @endif" data-toggle="tab" href="#Home-withicon"><i class="fa fa-home mr-2"></i> New Import Data</a></li>
+                            <li class="nav-item"><a class="nav-link @if(@$from || @$course) active show @endif" data-toggle="tab" href="#Profile-withicon"><i class="fa fa-user mr-2"></i> Distributed Data</a></li>
                         </ul>
                         <div class="tab-content">
-                            <div class="tab-pane @if(!isset($from)) show active @endif" id="Home-withicon">
+                            <div class="tab-pane @if(!@$from && !@$course) show active @endif" id="Home-withicon">
                                 <div class="row">
                                     <div class="col-lg-12" style="padding: 0">
                                         <div class="table-responsive">
@@ -71,7 +71,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane @if(isset($from)) show active @endif" id="Profile-withicon">
+                            <div class="tab-pane @if(@$from || @$course) show active @endif" id="Profile-withicon">
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="card">
@@ -79,7 +79,7 @@
                                                 <form action="{{ route('admin.filter.distribute-data') }}" method="GET" enctype="multipart/form-data">
                                                     @csrf
                                                     <div class="row clearfix">
-                                                        <div class="col-md-8">
+                                                        <div class="col-md-5">
                                                             <label>Range</label>  
                                                             <div class="input-daterange input-group" data-provide="datepicker">
                                                                 <input type="text" value="{{ $from ?? '' }}" class="input-sm form-control" name="from" autocomplete="off">
@@ -87,7 +87,16 @@
                                                                 <input type="text"  value="{{ $to  ?? '' }}" class="input-sm form-control" name="to" autocomplete="off">
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-4 mt-4">
+                                                        <div class="col-md-5">
+                                                            <label>Course</label>  
+                                                            <select name="course" class="form-control form-select" id="">
+                                                                <option value="">Select Course</option>
+                                                                @foreach ($courses as $cou)
+                                                                    <option value="{{ $cou }}" {{ $cou == @$couse ? 'selected' : '' }}>{{ $cou }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-2 mt-4">
                                                             <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-search mr-2"></i> Search</button>
                                                         </div>
                                                     </div>
@@ -95,6 +104,26 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @if(@$course || @$from || @$to)
+                                    <div class="col-md-12 ">
+                                        <p class="text-info">You filtered for 
+                                            @if($course)
+                                                course: {{ $course }}
+                                            @endif
+                                            @if($course && ($from || $to))
+                                                and
+                                            @endif
+                                            @if($from && $to)
+                                                from {{ $from }} to {{ $to }}
+                                            @elseif($from)
+                                                from {{ $from }}
+                                            @elseif($to)
+                                                to {{ $to }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                @endif
+
                                     <div class="col-lg-12" style="padding: 0">
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-striped table-hover dataTable js-exportable">

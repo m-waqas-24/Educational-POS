@@ -22,7 +22,10 @@
 <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedcolumns.bootstrap4.min.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedheader.bootstrap4.min.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/vendor/sweetalert/sweetalert.css') }}"/>
-<link rel="stylesheet" href="{{ asset('assets/vendor/toastr/toastr.min.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/vendor/toastr/toastr.min.css') }}">   
+
+<!-- MAIN CSS -->
+<link rel="stylesheet" href="assets/css/main.css">
 
 <!-- MAIN Project CSS file -->
 <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
@@ -113,7 +116,7 @@
                 <button type="button" class="btn-toggle-offcanvas"><i class="fa fa-bars"></i></button>
                 <button type="button" class="btn-toggle-fullwidth"><i class="fa fa-bars"></i></button>
                 @if(getUserType() == 'superadmin')
-                    <a href="{{ route('admin.superadmin.dashboard') }}">NIAIS</a>                
+                    <a href="{{ route('admin.dashboard') }}">NIAIS</a>                
                 @else
                     <a href="{{ route('admin.dashboard') }}">NIAIS</a>                
                 @endif
@@ -179,7 +182,7 @@
                             @if(getUserType() == 'superadmin' || getUserType() == 'admin')
                             @if(getUserType() == 'superadmin')
                                     <li class="{{ request()->is('admin/-dashboard') ? ' active' : '' }}">
-                                        <a href="{{ route('admin.superadmin.dashboard') }}" ><i class="fa fa-dashboard"></i>Dashboard</a>
+                                        <a href="{{ route('admin.dashboard') }}" ><i class="fa fa-dashboard"></i>Dashboard</a>
                                     </li>
                                 @else
                                     <li class="{{ request()->is('admin/dashboard') ? ' active' : '' }}">
@@ -201,9 +204,11 @@
                                     </ul>
                                 </li>
                                 <li class="{{ request()->is('admin/hold-students') ? ' active' : '' }}"><a href="{{ route('admin.hold.students') }}" ><i class="fa fa-stop"></i>CSR Students Hold <span class="badge badge-success float-right">{{ holdStudents() }}</span> </a></li>
-                                <li class="{{ request()->is('admin/imported-data') ? ' active' : '' }}"><a href="{{ route('admin.index.import-data') }}" ><i class="fa fa-area-chart"></i>Import Data</a></li>
-                                <li class="{{ request()->is('admin/duplicate-data') ? ' active' : '' }}"><a href="{{ route('admin.duplicate.import-data') }}" ><i class="fa fa-map"></i>Duplicate Data</a></li>
-                                <li class="{{ request()->is('admin/distribution') ? ' active' : '' }}"><a href="{{ route('admin.distribute.index') }}" ><i class="fa fa-lock"></i>Distribute Data</a></li>
+                                @if(getUserType() == 'admin')
+                                    <li class="{{ request()->is('admin/imported-data') ? ' active' : '' }}"><a href="{{ route('admin.index.import-data') }}" ><i class="fa fa-area-chart"></i>Import Data</a></li>
+                                    <li class="{{ request()->is('admin/duplicate-data') ? ' active' : '' }}"><a href="{{ route('admin.duplicate.import-data') }}" ><i class="fa fa-map"></i>Duplicate Data</a></li>
+                                    <li class="{{ request()->is('admin/distribution') ? ' active' : '' }}"><a href="{{ route('admin.distribute.index') }}" ><i class="fa fa-lock"></i>Distribute Data</a></li>
+                                @endif
                                 <li class="{{ request()->is('admin/csrs') ? ' active' : '' }}"><a href="{{ route('admin.csr.index') }}" ><i class="fa fa-user"></i>CSR Management</a></li>
                                 <li class="{{ request()->is('admin/batches') ? ' active' : '' }}"><a href="{{ route('admin.index.batches') }}" ><i class="fa fa-th-list"></i>Batches</a></li>
                                 {{-- <li class="{{ request()->is('admin/orientations') ? ' active' : '' }}"><a href="{{ route('admin.index.orientations') }}" ><i class="fa fa-link"></i>Orientations</a></li> --}}
@@ -391,6 +396,7 @@
 <script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
 <script src="{{ asset('assets/vendor/bootstrap-tagsinput/bootstrap-tagsinput.js') }}"></script>  
 <script src="{{ asset('assets/vendor/nouislider/nouislider.js') }}"></script>  
+
     
 
 @yield('scripts')

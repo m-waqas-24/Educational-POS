@@ -39,6 +39,7 @@
                                       <th>Batch No.</th>
                                       <th>Starting Date</th>
                                       <th>Ending Date</th>
+                                      <th>Admission Ending Date</th>
                                       <th>Active Status</th>
                                       <th>Open Status</th>
                                       <th>Action</th>
@@ -50,6 +51,7 @@
                                         <td>{{$batch->course->name}}</td>
                                         <td>{{$batch->number}}</td>
                                         <td>{{$batch->starting_date}}</td>
+                                        <td>{{$batch->ending_date}}</td>
                                         <td>{{$batch->adm_closing_date}}</td>
                                         <td>
                                           @if ($batch->is_active==1)

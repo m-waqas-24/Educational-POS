@@ -84,19 +84,35 @@ class DistributeDataController extends Controller
     }
     
     
-    public function filterDistributedData(Request $request){
-        $importedStudents = ImportStudent::orderBy('id','DESC')->where('is_distributed', 0)->get();
-        $from = Carbon::createFromFormat('m/d/Y', $request->from)->startOfDay()->format('Y-m-d H:i:s');
-        $to = Carbon::createFromFormat('m/d/Y', $request->to)->endOfDay()->format('Y-m-d H:i:s');
-
-        if($from && $to){
-            $distributedStudents = ImportStudent::where('is_distributed', 1)
-                                                ->whereBetween('datetime', ["{$from} 00:00:00", "{$to} 23:59:59"])
-                                                ->get();
+    public function filterDistributedData(Request $request) {
+        $importedStudents = ImportStudent::orderBy('id', 'DESC')->where('is_distributed', 0)->get();
+        
+        $query = ImportStudent::where('is_distributed', 1);
+        
+        if ($request->from && $request->to) {
+            $from = Carbon::createFromFormat('m/d/Y', $request->from)->startOfDay()->format('Y-m-d H:i:s');
+            $to = Carbon::createFromFormat('m/d/Y', $request->to)->endOfDay()->format('Y-m-d H:i:s');
+            $query->whereBetween('datetime', [$from, $to]);
+        } else {
+            $from = $to = null;
         }
-
-        return view('admin.importdata.index', compact('importedStudents', 'distributedStudents', 'from', 'to'));
+    
+        if ($request->course) {
+            $course = $request->course;
+            $query->where('course', 'like', '%' . $course . '%');
+        }else{
+            $course = null;
+        }   
+    
+        $distributedStudents = $query->get();
+        
+        $courses = ImportStudent::distinct()->pluck('course');
+        
+        return view('admin.importdata.index', compact('importedStudents', 'distributedStudents', 'from', 'to', 'courses', 'course'));
     }
+    
+    
+    
 
 
 }

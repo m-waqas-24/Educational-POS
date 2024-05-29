@@ -75,7 +75,8 @@ class CourseController extends Controller
 
     public function batchesStudent($id){
         if(getUserType() == 'admin' || getUserType() == 'superadmin'){
-            $studentCourses = StudentCourse::where('batch_id',$id)->get();
+            $studentCourses = StudentCourse::where(['batch_id' => $id, 'is_continued' => 1])->get();
+            $discontinuedStudentCourses = StudentCourse::where(['batch_id' => $id, 'is_continued' => 0])->get();
             //total fees of students
             $totalFees = $studentCourses->sum('fee');
             $totalRecovered = $this->sumConfirmedPayments($studentCourses);
@@ -85,9 +86,10 @@ class CourseController extends Controller
             ->toArray();
             // dd($csrStudentCounts);
             $batch = Batch::find($id);
-            $workshops = getWorkshopsByBatchId($id);
+            // $workshops = getWorkshopsByBatchId($id);
+            $workshops = null;
 
-            return view('admin.course.batches-students', compact('studentCourses', 'batch', 'totalRecovered', 'csrStudentCounts', 'totalFees', 'workshops'));
+            return view('admin.course.batches-students', compact('studentCourses', 'discontinuedStudentCourses', 'batch', 'totalRecovered', 'csrStudentCounts', 'totalFees', 'workshops'));
         }else if(getUserType() == 'csr'){
             $userId = Auth::id();
             $studentCourses = StudentCourse::where('batch_id',$id)->whereHas('student', function ($query) use ($userId) {

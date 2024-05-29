@@ -38,7 +38,8 @@ class BadgeController extends Controller
         Batch::create([
             'course_id' => $request->course_id,
             'number' => $request->number,
-            'starting_date' => $request->starting_date,
+            'starting_date' => $request->starting_date, 
+            'ending_date' => $request->ending_date, 
             'adm_closing_date' => $request->adm_closing_date,
             'is_open' => $request->is_open ? true : false,
             'is_active' => $request->is_active ? true : false,
@@ -64,6 +65,7 @@ class BadgeController extends Controller
        $batch->course_id=$request->course_id;
        $batch->number=$request->number;
        $batch->starting_date= $request->starting_date;
+       $batch->ending_date= $request->ending_date;
        $batch->adm_closing_date = $request->adm_closing_date;
        $batch->is_open = $request->is_open ? true : false ;
        $batch->is_active = $request->is_active ? true : false;

@@ -87,6 +87,7 @@
                             <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                                 <thead>
                                     <tr>
+                                        <th class="text-uppercase">CSR</th>
                                         <th class="text-uppercase">Name</th>
                                         <th class="text-uppercase">Email</th>
                                         <th class="text-uppercase">Last Payment</th>
@@ -97,11 +98,12 @@
                                 <tbody>
                                     @foreach($studentCourses as $index => $course)
                                     <tr style="{{ $course->statusStyle }}">
+                                        <td>{{ $course->student->csr->name }}</td>
                                         <td>{{ $course->student->name }}</td>
                                         <td>{{ $course->student->user->email }}</td>
                                         <td>{{ \Carbon\Carbon::parse($course->getLatestPaymentDate())->diffForHumans() }}</td>
                                         <td id="lastComment_{{$course->id}}" style="max-width: 200px; word-wrap: break-word;">
-                                            @if($course->comments->count() > 0)
+                                            {{-- @if($course->comments->count() > 0)
                                                 <?php
                                                 $comment = $course->comments->last()->comments;
                                                 $words = explode(' ', $comment);
@@ -116,8 +118,10 @@
                                                 }
                                                 ?>
                                                 {!! $newComment !!}
-                                            @endif
-                                        </td>   
+                                            @endif --}}
+                                        </td>
+
+                                       
                                         <td>
                                             <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#largeModal_{{ $course->id }}"><i class="fa fa-eye"></i> </a>
                                             <a href="#" class="btn btn-warning add-comment" data-student-course="{{  $course->id }}">

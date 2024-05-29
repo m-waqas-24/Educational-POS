@@ -16,8 +16,10 @@ class ImportDataController extends Controller
         $to = null;
         $importedStudents = ImportStudent::orderBy('id','DESC')->where('is_distributed', 0)->get();
         $distributedStudents = ImportStudent::orderBy('id','DESC')->where('is_distributed', 1)->get();
+        $courses = ImportStudent::distinct()->pluck('course');
+        // dd($courses );   
 
-        return view('admin.importdata.index', compact('importedStudents', 'distributedStudents', 'from', 'to'));
+        return view('admin.importdata.index', compact('importedStudents', 'distributedStudents', 'from', 'to', 'courses'));
     }
 
    public function importData(Request $request){

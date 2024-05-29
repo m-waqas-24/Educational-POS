@@ -88,6 +88,17 @@ class CSRDataController extends Controller
         return view('admin.csr.enroll-student', compact('student', 'csrs', 'qualifications', 'sources', 'provinces', 'courses', 'batches', 'modes'));
     }
 
+    public function filterActionStatusesTodayData($id,$csr){
+        $user = Auth::user();
+        $students = CsrStudent::where([
+            'csr_id' => $csr,
+            'action_status_id' => $id
+        ])->whereDate('called_at', Carbon::today()->toDateString())->get();
+        $action = CsrActionStatus::find($id);
+
+        return view('admin.csr.filter-action-status', compact('students', 'action'));
+    }
+
     public function filterActionStatuses($id){
         $user = Auth::user();
         $students = CsrStudent::where(['csr_id' => $user->id, 'action_status_id' => $id])->get();

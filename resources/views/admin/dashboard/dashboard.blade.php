@@ -59,7 +59,7 @@
                         </div>
                     @endforeach
 
-                    @if(getUserType() == 'admin')
+                    @if(getUserType() == 'admin' || getUserType() == 'superadmin')
                     <div class="col-lg-3 col-md-6 col-sm-6">
                         <div class="card top_widget">
                             <div class="body">
@@ -67,7 +67,17 @@
                                 <div class="content">
                                     <div class="text mb-2 text-uppercase">Due Data CSR</div>
                                     <h4 class="number mb-0">{{ $students }}</h4>
-                                    <small class="text-muted">Analytics for Today</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="card top_widget">
+                            <div class="body">
+                                <div class="icon"><i class="mdi mdi-cellphone"></i> </div>
+                                <div class="content">
+                                    <div class="text mb-2 text-uppercase">Total CSR Data</div>
+                                    <h4 class="number mb-0">{{ $totalData }}</h4>
                                 </div>
                             </div>
                         </div>

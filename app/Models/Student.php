@@ -35,7 +35,6 @@ class Student extends Model
     public function qualification(){
         return $this->belongsTo(Qualification::class, 'qualification_id', 'id');
     }
-
     
     public function courseStatus()
     {

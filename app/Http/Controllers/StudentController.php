@@ -527,8 +527,6 @@ class StudentController extends Controller
             }
         }
 
-
-
         public function updateStudentPayment(Request $request, $id){
             $payment = StudentCoursePayment::find($id);
 
@@ -543,6 +541,8 @@ class StudentController extends Controller
                 'payment_history' => json_encode($paymentHistory),
             ]);
 
+            $studentcourse = StudentCourse::find($payment->student_course_id);
+
             if($request->paymentType == 'first'){
                 $payment->update([
                     'mode_first' => $request->mode_first,
@@ -556,6 +556,20 @@ class StudentController extends Controller
                     'is_edit_second' => 1,
                 ]);
             }
+
+            $totalPaid = 0;
+    
+            foreach ($studentcourse->coursePayments as $payment) {
+                $totalPaid += $payment->payment_first + $payment->payment_second;
+            }
+    
+            //1 for paid and 2 for partial
+            $totalFee = $studentcourse->fee + $studentcourse->student->card;
+
+            $status_id = ($totalPaid >= $totalFee) ? 1 : 2;
+            $studentcourse->update([
+                'status_id' => $status_id,
+            ]);
 
             return back()->withSuccess('Updated!');
 

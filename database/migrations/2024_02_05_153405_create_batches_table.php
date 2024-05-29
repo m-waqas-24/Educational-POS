@@ -19,6 +19,7 @@ class CreateBatchesTable extends Migration
             $table->string('number');
             $table->string('starting_date');
             $table->string('adm_closing_date')->nullable();
+            $table->string('ending_date')->nullable();
             $table->boolean('is_active')->default(0);
             $table->boolean('is_open')->default(0);
             $table->timestamps();

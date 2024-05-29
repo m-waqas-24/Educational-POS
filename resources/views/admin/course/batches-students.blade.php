@@ -32,7 +32,8 @@
                 <div class="card">
                     <div class="body">
                         <ul class="nav nav-tabs">
-                            <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#Home-withicon"><i class="fa fa-users mr-2"></i> Students List</a></li>
+                            <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#Home-withicon"><i class="fa fa-users mr-2"></i> Active Students List</a></li>
+                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Home-withiconDiscontinued"><i class="fa fa-ban mr-2"></i> Discontinued Students List</a></li>
                             @if(getUserType() == 'admin' || getUserType() == 'superadmin')
                                 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Profile-withicon"><i class="fa fa-dashboard mr-2"></i> Batch Report</a></li>
                             @endif
@@ -50,6 +51,7 @@
                                                             <th class="text-uppercase">Name</th>
                                                             <th class="text-uppercase">Email</th>
                                                             <th class="text-uppercase">Last Payment</th>
+                                                            <th class="text-uppercase">Status</th>
                                                             <th class="text-uppercase">Last Comment</th>
                                                             <th class="text-uppercase">Action</th>
                                                         </tr>
@@ -60,6 +62,13 @@
                                                             <td>{{ $course->student->name }}</td>
                                                             <td>{{ $course->student->user->email }}</td>
                                                             <td>{{ \Carbon\Carbon::parse($course->getLatestPaymentDate())->diffForHumans() }}</td>
+                                                            <td>
+                                                                @if($course->status_id == 1)
+                                                                    <span class="badge badge-primary">Paid</span>
+                                                                @elseif($course->status_id == 2)
+                                                                    <span class="badge badge-danger {{ $course->statusStyle ? 'text-white' : '' }}">Partial</span>
+                                                                @endif
+                                                            </td>
                                                             <td id="lastComment_{{$course->id}}" style="max-width: 200px; word-wrap: break-word;">
                                                                 @if($course->comments->count() > 0)
                                                                     <?php
@@ -76,13 +85,6 @@
                                                                     }
                                                                     ?>
                                                                     {!! $newComment !!}
-                                                                @endif
-                                                            </td>
-                                                            <td>
-                                                                @if($course->status_id == 1)
-                                                                    <span class="badge badge-primary">Paid</span>
-                                                                @elseif($course->status_id == 2)
-                                                                    <span class="badge badge-danger {{ $course->statusStyle ? 'text-white' : '' }}">Partial</span>
                                                                 @endif
                                                             </td>
                                                             <td>
@@ -334,6 +336,304 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="tab-pane " id="Home-withiconDiscontinued">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="body">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase">Name</th>
+                                                            <th class="text-uppercase">Email</th>
+                                                            <th class="text-uppercase">Last Payment</th>
+                                                            <th class="text-uppercase">Status</th>
+                                                            <th class="text-uppercase">Last Comment</th>
+                                                            <th class="text-uppercase">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($discontinuedStudentCourses as $index => $course)
+                                                        <tr style="{{ $course->statusStyle }}">
+                                                            <td>{{ $course->student->name }}</td>
+                                                            <td>{{ $course->student->user->email }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($course->getLatestPaymentDate())->diffForHumans() }}</td>
+                                                            <td>
+                                                                @if($course->status_id == 1)
+                                                                    <span class="badge badge-primary">Paid</span>
+                                                                @elseif($course->status_id == 2)
+                                                                    <span class="badge badge-danger {{ $course->statusStyle ? 'text-white' : '' }}">Partial</span>
+                                                                @endif
+                                                            </td>
+                                                            <td id="lastComment_{{$course->id}}" style="max-width: 200px; word-wrap: break-word;">
+                                                                @if($course->comments->count() > 0)
+                                                                    <?php
+                                                                    $comment = $course->comments->last()->comments;
+                                                                    $words = explode(' ', $comment);
+                                                                    $newComment = '';
+                                                                    $wordCount = 0;
+                                                                    foreach ($words as $word) {
+                                                                        $newComment .= $word . ' ';
+                                                                        $wordCount++;
+                                                                        if ($wordCount % 3 == 0) {
+                                                                            $newComment .= '<br>';
+                                                                        }
+                                                                    }
+                                                                    ?>
+                                                                    {!! $newComment !!}
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#largeModal_{{ $course->id }}"><i class="fa fa-eye"></i> </a>
+                                                                <a href="#" class="btn btn-warning add-comment" data-student-course="{{  $course->id }}">
+                                                                    <i class="fa fa-comment"></i>
+                                                                    {{ $course->comments ? ($course->comments->where('is_read', 0)->count() > 0 ? $course->comments->where('is_read', 0)->count() : '') : '' }}
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                    
+                                                        <div class="modal fade" id="largeModal_{{ $course->id }}" tabindex="-1" role="dialog">
+                                                            <div class="modal-dialog modal-xl" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header bg-primary">
+                                                                        <h4 class="title text-white" id="largeModalLabel">Student Details</h4>
+                                                                    </div>
+                                                                    <div class="modal-body"> 
+                                                                        <div class="row clearfix">
+                                                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                            
+                                                                                <div class="card">
+                                                                                    <div class="body">
+                                                                                        <div class="row">
+                                                                                            <div class="col-md-3">
+                                                                                                <small class="">Student Name: </small>
+                                                                                                <p><b> {{ $course->student->name }} </b></p>
+                                                                                                <hr>
+                                                                                            </div>
+                                                                                            <div class="col-md-3">
+                                                                                                <small class="">Enrollment CSR: </small>
+                                                                                                <p><b> {{ $course->student->csr->name }} </b></p>
+                                                                                                <hr>
+                                                                                            </div>
+                                                                                            <div class="col-md-3">
+                                                                                                <small class="">Enrollment Date: </small>
+                                                                                                <p><b> {{ \Carbon\Carbon::parse($course->coursePayments()->min('payment_date_first'))->format('d F, Y') }} </b></p>
+                                                                                                <hr>
+                                                                                            </div>
+                                                                                            <div class="col-md-3">
+                                                                                                <small class="">CNIC: </small>
+                                                                                                <p><b> {{ $course->student->cnic }} </b></p>
+                                                                                                <hr>
+                                                                                            </div>
+                                                                                            <div class="col-md-3">
+                                                                                                <small class="">Whatsapp: </small>
+                                                                                                <p><b> {{ $course->student->whatsapp }} </b></p>
+                                                                                                <hr>
+                                                                                            </div>
+                                                                                            <div class="col-md-3">
+                                                                                                <small class="">Student Status: </small>
+                                                                                                <p>
+                                                                                                    @if($course->is_continued)
+                                                                                                    <span class="badge badge-success">Active</span>
+                                                                                                    @else
+                                                                                                    <span class="badge badge-danger">Discontinued</span>
+                                                                                                    @endif
+                                                                                                </p>
+                                                                                                <hr>
+                                                                                            </div>
+                                                                                            <div class="col-md-6">
+                                                                                                <small class="">QUALIFICATION: </small>
+                                                                                                <p><b> {{ $course->student->qualification->name }} @if($course->student->qualification->parent) ( {{ $course->student->qualification->parent->name }} ) @endif </b></p>
+                                                                                                <hr>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                            
+                                                                                <div class="card">
+                                                                                    <div class="header bg-primary">
+                                                                                        <h2 class="text-light text-center text-uppercase">Course Details</h2>
+                                                                                    </div>
+                                                                                    <div class="body">
+                                                                                        <section>
+                                                                                            <div class="row">
+                                                                                                <div class="col-md-12 text-right mb-2">
+                                                                                                    @if(getUserType() == 'admin' || getUserType() == 'superadmin')
+                                                                                                    <script>
+                                                                                                        function stuconfirmAction(courseId, action) {
+                                                                                                            Swal.fire({
+                                                                                                                title: "Are you sure?",
+                                                                                                                text: (action == 'discontinued') ? "You are going to deactivate!" : "You are going to activate user!",
+                                                                                                                icon: "warning",
+                                                                                                                showCancelButton: true,
+                                                                                                                confirmButtonColor: "#3085d6",
+                                                                                                                cancelButtonColor: "#d33",
+                                                                                                                confirmButtonText: "Yes"
+                                                                                                            }).then((result) => {
+                                                                                                                if (result.isConfirmed) {
+                                                                                                                    // User confirmed, proceed with the action
+                                                                                                                    window.location.href = "{{ route('admin.actOrDe.student') }}" + '/' + courseId + '/' + action;
+                                                                                                                } else {
+                                                                                                                    Swal.fire("Cancelled", "Your action was cancelled", "info");
+                                                                                                                }
+                                                                                                            });
+                                                                                                        }
+                                                                                                    </script>
+                                                                                                        @if($course->is_continued)
+                                                                                                            <button type="button" class="btn btn-warning" data-course-id="{{ $course->id }}" onclick="stuconfirmAction('{{ $course->id }}', 'discontinued')">
+                                                                                                                <i class="fa fa-ban mr-2"></i> Discontinued Student
+                                                                                                            </button>
+                                                                                                        @else
+                                                                                                            <button type="button" class="btn btn-info" data-course-id="{{ $course->id }}" onclick="stuconfirmAction('{{ $course->id }}', 'continued')">
+                                                                                                                <i class="fa fa-check mr-2"></i> Activate Student
+                                                                                                            </button>
+                                                                                                        @endif
+                                                                                                        <a href="{{ route('admin.edit.student', $course->student->id) }}" class="btn btn-primary"><i class="fa fa-edit"></i> Edit Student</a>
+                                                                                                    @endif
+                                                                                                    @if($course->status_id == 2 && getUserType() == 'csr')
+                                                                                                        <button type="button" class="btn btn-primary make-payment" data-course-id="{{ $course->id }}"><i class="fa fa-money mr-2"></i> Make Payment</button>
+                                                                                                        <button type="button" class="btn btn-secondary add-comment" data-course-id="{{ $course->id }}"><i class="fa fa-comment mr-2"></i> Comment</button>
+                                                                                                    @endif
+                                                                                                </div>
+                                                                                                <div class="col-md-3">
+                                                                                                    <dl class="param">
+                                                                                                        <dt>Course:</dt>
+                                                                                                        <dd>{{ $course->course->name }}</dd>
+                                                                                                    </dl>
+                                                                                                </div>
+                                                                                                <div class="col-md-3">
+                                                                                                    <dl class="param">
+                                                                                                        <dt>Batch:</dt>
+                                                                                                        <dd>{{ $course->batch->number }}</dd>
+                                                                                                    </dl>
+                                                                                                </div>
+                                                                                                <div class="col-md-3">
+                                                                                                    <dl class="param">
+                                                                                                        <dt>Fee:</dt>
+                                                                                                        <dd>{{ formatPrice($course->fee )  }}</dd>
+                                                                                                    </dl>
+                                                                                                </div>
+                                                                                                <div class="col-md-3">
+                                                                                                    <dl class="param">
+                                                                                                        <dt>Discount: </dt>
+                                                                                                        <dd> {{ formatPrice($course->discount) ?? 0 }} </dd>
+                                                                                                    </dl>
+                                                                                                </div>
+                                                                                                <div class="col-md-3">
+                                                                                                    <dl class="param">
+                                                                                                        <dt>Student Card: </dt>
+                                                                                                        <dd> {{ $course->student->card }} </dd>
+                                                                                                    </dl>
+                                                                                                </div>
+                                                                                                
+                                                                                                <div class="col-md-3">
+                                                                                                    <dl class="param">
+                                                                                                        <dt class="@if($course->status_id == 1) text-success @elseif($course->status_id == 2) text-danger @endif">Remaining Amount: </dt>
+                                                                                                        <dd class="@if($course->status_id == 1) text-success @elseif($course->status_id == 2) text-danger @endif">{{  formatPrice($course->remainingfee() )  }} </dd>
+                                                                                                    </dl>
+                                                                                                </div>
+                                                                                                <div class="col-md-3">
+                                                                                                    <dl class="param">
+                                                                                                        <dt class="@if($course->status_id == 1) text-success @elseif($course->status_id == 2) text-danger @endif">Status: </dt>
+                                                                                                        @if($course->status_id == 1)
+                                                                                                            <span class="badge badge-primary">Paid</span>
+                                                                                                        @elseif($course->status_id == 2)
+                                                                                                            <span class="badge badge-danger">Partial</span>
+                                                                                                        @endif
+                                                                                                    </dl>
+                                                                                                </div>
+                                                                                            </div>  
+                                                                                            <div class="row clearfix">
+                                                                                                <div class="col-lg-12">
+                                                                                                    <div class="card">
+                                                                                                        <div class="card-header">
+                                                                                                            <h5 class="text-center">Payment Timeline</h5>
+                                                                                                        </div>
+                                                                                                        <div class="body">
+                                                                                                            @foreach($course->coursePayments->sortByDesc('created_at') as $payment)
+                                                                                                                <div class="timeline-item green d-flex align-items-center justify-content-between" date-is="{{ \Carbon\Carbon::parse($payment->payment_date_first)->format('d F, Y') }}">
+                                                    
+                                                                                                                    <div>
+                                                                                                                        <h5><i class="fa fa-money mr-2"></i> Paid Amount: {{ formatPrice($payment->payment_first) }} ({{ $payment->modeOne->name }}) </h5> 
+                                                                                                                        @if($payment->payment_first_receipt)
+                                                                                                                            <a href="{{ asset('storage/'.$payment->payment_first_receipt) }}" target="_blank" class="btn btn-warning my-2"><i class="fa fa-file mr-2"></i> Check Receipt</a>
+                                                                                                                        @else
+                                                                                                                            <span class="badge badge-danger my-2">Receipt not uploaded!</span>
+                                                                                                                        @endif
+                                                                                                                        @if($payment->is_edit_first)
+                                                                                                                        <span class="fw-bold text-primary ">Edited</span>
+                                                                                                                        @endif
+                                                                                                                    </div>
+                                                    
+                                                                                                                    <div>
+                                                                                                                        @if($payment->is_confirmed_first == 0 && auth()->user()->type == 'admin')
+                                                                                                                            <a href="#" class="btn btn-danger btn-sm m-1" title="Confirmed" onclick="confirmAction(event, 'approved', 'first', '{{ $payment->id }}')">
+                                                                                                                                <i class="fa fa-check mr-2"></i> Confirmed Payment
+                                                                                                                            </a>
+                                                                                                                        @elseif($payment->is_confirmed_first == 0 && auth()->user()->type == 'csr')
+                                                                                                                            <span class="btn btn-danger"><i class="fa fa-times mr-2"></i> Not Confirmed Yet</span>
+                                                                                                                        @elseif($payment->is_confirmed_first)
+                                                                                                                            <span class="btn btn-success"><i class="fa fa-check mr-2"></i> Confirmed </span>
+                                                                                                                        @endif
+                                                                                                                    </div>
+                                                                                                                    
+                                                                                                                </div>
+                                                                                                                @if(@$payment->mode_second)
+                                                                                                                <div class="timeline-item green d-flex align-items-center justify-content-between" date-is="{{ \Carbon\Carbon::parse($payment->payment_date_first)->format('d F, Y') }}">
+                                                    
+                                                                                                                <div>
+                                                                                                                    <h5><i class="fa fa-money mr-2"></i> Paid Amount: {{ formatPrice($payment->payment_second) }} ({{ $payment->modeTwo->name }}) </h5>
+                                                                                                                    @if($payment->payment_second_receipt)
+                                                                                                                    <a href="{{ asset('storage/'.$payment->payment_second_receipt) }}" target="_blank" class="btn btn-warning my-2"><i class="fa fa-file mr-2"></i> Check Receipt</a>
+                                                                                                                    @else
+                                                                                                                    <span class="badge badge-danger my-2">Receipt not uploaded!</span>
+                                                                                                                    @endif
+                                                                                                                    @if($payment->is_edit_second)
+                                                                                                                    <span class="fw-bold text-primary ">Edited</span>
+                                                                                                                    @endif
+                                                                                                                </div>
+                                                    
+                                                                                                                <div>
+                                                                                                                    @if($payment->is_confirmed_second == 0 && auth()->user()->type == 'admin')
+                                                                                                                        <a href="#" class="btn btn-danger btn-sm m-1" title="Confirmed" onclick="confirmAction(event, 'approved', 'second', '{{ $payment->id }}')">
+                                                                                                                            <i class="fa fa-check mr-2"></i> Confirmed Payment
+                                                                                                                        </a>
+                                                                                                                    @elseif($payment->is_confirmed_second == 0 && auth()->user()->type == 'csr')
+                                                                                                                        <span class="btn btn-danger"><i class="fa fa-times mr-2"></i> Not Confirmed Yet</span>
+                                                                                                                    @elseif($payment->is_confirmed_second)
+                                                                                                                        <span class="btn btn-success"><i class="fa fa-check mr-2"></i> Confirmed </span>
+                                                                                                                    @endif
+                                                                                                                </div>
+                                                                                                                </div>
+                                                                                                                @endif
+                                                                                                            @endforeach
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </section>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-danger" data-dismiss="modal">CLOSE</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                    
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             @if(getUserType() == 'admin' || getUserType() == 'superadmin')
                             <div class="tab-pane" id="Profile-withicon">
                                 <div class="row clearfix" >
@@ -376,7 +676,7 @@
                                                     <div class="icon text-info"><i class="fa fa-desktop"></i> </div>
                                                     <div class="content">
                                                         <div class="text">Workshops</div>
-                                                        <h5 class="number">{{ count(getWorkshopsByBatchId($batch->id)) }}</h5>
+                                                        {{-- <h5 class="number">{{ count(getWorkshopsByBatchId($batch->id)) }}</h5> --}}
                                                     </div>
                                                 </div>
                                             </div>
@@ -399,6 +699,28 @@
                                                 <div class="content">
                                                     <div class="text">Left Student</div>
                                                     <h5 class="number"> {{ $studentCourses->where('is_continued',0)->count() }} </h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="card top_counter">
+                                            <div class="body">
+                                                <div class="icon text-danger"><i class="fa fa-calendar"></i> </div>
+                                                <div class="content">
+                                                    <div class="text">Batch Start Date</div>
+                                                    <h5 class="number"> {{ $batch->starting_date }} </h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="card top_counter">
+                                            <div class="body">
+                                                <div class="icon text-danger"><i class="fa fa-close"></i> </div>
+                                                <div class="content">
+                                                    <div class="text">Batch Ending Date</div>
+                                                    <h5 class="number"> {{ $batch->ending_date }} </h5>
                                                 </div>
                                             </div>
                                         </div>
