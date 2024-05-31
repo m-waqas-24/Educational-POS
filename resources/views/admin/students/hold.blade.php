@@ -52,7 +52,10 @@
                                         <td id="lastComment_{{$course->id}}" style="max-width: 200px; word-wrap: break-word;">
                                             @if($course->comments)
                                                 <?php
-                                                $comment = $course->comments->last()->comments;
+                                                $lastComment = $course->comments->last();
+                                                $comment = $lastComment ? $lastComment->comment : null;
+
+                                                // $comment = $course->comments->last()->comments;
                                                 $words = explode(' ', $comment);
                                                 $newComment = '';
                                                 $wordCount = 0;

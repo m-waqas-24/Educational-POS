@@ -51,7 +51,7 @@
                                     <div class="icon"><i class="{{ $status->icon }}"></i> </div>
                                     <div class="content">
                                         <div class="text mb-2 text-uppercase">{{ $status->name }}</div>
-                                        <h4 class="number mb-0">{{ $status->CsrStudent()->where('csr_id', $csrId ?? auth()->user()->id)->whereDate('called_at', \Carbon\Carbon::today())->count() }}</h4>
+                                        <h4 class="number mb-0">{{ $status->getCallCount() }}</h4>
                                         <small class="text-muted">Analytics for Today</small>
                                     </div>
                                 </div>
@@ -109,6 +109,34 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="body">
+                                @foreach($csrs as $csr)
+                                @if(Auth::user()->type == 'csr' && Auth::user()->id != $csr->id)
+                                    @continue
+                                @endif
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="header">
+                                            <h2>Performance Chart for {{ $csr->name }}</h2>
+                                        </div>
+                                        <div class="body">
+                                            @if (isset($csrData[$csr->name]))
+                                                @foreach($csrData[$csr->name] as $year => $months)
+                                                    <div id="chart-combinationcsr-{{ $csr->name }}-{{ $year }}" style="height: 16rem"></div>
+                                                    <p>Performance chart for {{ $csr->name }} in {{ $year }}</p>
+                                                @endforeach
+                                            @else
+                                                <p>No data available for {{ $csr->name }}.</p>
+                                            @endif
+                                        </div>
+                                    </div>                
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>                
+                    </div>
                 </div>
                 @endif
             
@@ -156,4 +184,70 @@
             </div>
         </div>
 
+    @endsection
+
+    @section('scripts')
+
+   
+<script>
+    var csrData = @json($csrData);
+    var csrEnrollData = @json($csrEnrollData);
+    var csrPartialEnrollData = @json($csrPartialEnrollData); // Add this line to fetch partial enrollment data
+    
+    $(document).ready(function() {
+        for (const [csrName, years] of Object.entries(csrData)) {
+            for (const [year, months] of Object.entries(years)) {
+                var totalData = ['Total'];
+                var uncalledData = ['Uncalled'];
+                var enrollData = ['Enroll'];
+                var partialEnrollData = ['Partial Enroll']; // Add this line
+                var categories = [];
+    
+                for (let month = 1; month <= 12; month++) {
+                    totalData.push(months['total'][month] || 0);
+                    uncalledData.push(months['uncalled'][month] || 0);
+                    enrollData.push((csrEnrollData[csrName] && csrEnrollData[csrName][year] && csrEnrollData[csrName][year][month]) || 0);
+                    partialEnrollData.push((csrPartialEnrollData[csrName] && csrPartialEnrollData[csrName][year] && csrPartialEnrollData[csrName][year][month]) || 0); // Add this line
+                    categories.push(new Date(2000, month - 1).toLocaleString('default', { month: 'long' }));
+                }
+    
+                var chart = c3.generate({
+                    bindto: '#chart-combinationcsr-' + csrName + '-' + year,
+                    data: {
+                        columns: [totalData, uncalledData, enrollData, partialEnrollData], // Include partialEnrollData
+                        types: {
+                            ['Enroll']: 'line',
+                            ['Total']: 'bar',
+                            ['Uncalled']: 'bar',
+                            ['Partial Enroll']: 'line' // Set partial enrollment data as a line chart
+                        },
+                        colors: {
+                            ['Partial Enroll']: 'red' // Set color for partial enrollment line
+                        }
+                    },
+                    axis: {
+                        x: {
+                            type: 'category',
+                            categories: categories
+                        }
+                    },
+                    bar: {
+                        width: 16
+                    },
+                    legend: {
+                        show: true
+                    },
+                    padding: {
+                        bottom: 0,
+                        top: 0
+                    }
+                });
+    
+            }
+        }
+    });
+    
+    
+    </script>
+        
     @endsection
