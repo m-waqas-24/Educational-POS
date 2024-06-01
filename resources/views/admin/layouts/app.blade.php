@@ -204,10 +204,12 @@
                                     </ul>
                                 </li>
                                 <li class="{{ request()->is('admin/hold-students') ? ' active' : '' }}"><a href="{{ route('admin.hold.students') }}" ><i class="fa fa-stop"></i>CSR Students Hold <span class="badge badge-success float-right">{{ holdStudents() }}</span> </a></li>
+                                <li class="{{ request()->is('admin/distribution-records') ? ' active' : '' }}"><a href="{{ route('admin.distribute.record') }}" ><i class="fa fa-stop"></i>Distribution Records      </a></li>
                                 @if(getUserType() == 'admin')
                                     <li class="{{ request()->is('admin/imported-data') ? ' active' : '' }}"><a href="{{ route('admin.index.import-data') }}" ><i class="fa fa-area-chart"></i>Import Data</a></li>
                                     <li class="{{ request()->is('admin/duplicate-data') ? ' active' : '' }}"><a href="{{ route('admin.duplicate.import-data') }}" ><i class="fa fa-map"></i>Duplicate Data</a></li>
                                     <li class="{{ request()->is('admin/distribution') ? ' active' : '' }}"><a href="{{ route('admin.distribute.index') }}" ><i class="fa fa-lock"></i>Distribute Data</a></li>
+                                  
                                 @endif
                                 <li class="{{ request()->is('admin/csrs') ? ' active' : '' }}"><a href="{{ route('admin.csr.index') }}" ><i class="fa fa-user"></i>CSR Management</a></li>
                                 <li class="{{ request()->is('admin/batches') ? ' active' : '' }}"><a href="{{ route('admin.index.batches') }}" ><i class="fa fa-th-list"></i>Batches</a></li>
@@ -235,6 +237,9 @@
                             </li>
                             <li class="{{ request()->is('admin/hold-students') ? ' active' : '' }}"><a href="{{ route('admin.hold.students') }}" ><i class="fa fa-stop"></i>CSR Students Hold <span class="badge badge-success float-right">{{ holdStudents() }}</span> </a></li>
                             <li class="{{ request()->is('admin/csr-students-data') ? ' active' : '' }}"><a href="{{ route('admin.csr-data.index') }}" ><i class="fa fa-user"></i>Students Data</a></li>
+                            @endif
+                            @if((auth()->user()->type == 'csr' && Auth::user()->role_id == 1)  || getUserType() == 'superadmin' || getUserType() == 'admin')
+                            <li class="{{ request()->is('admin/followupdata-remarks') ? ' active' : '' }}"><a href="{{ route('admin.data.remarks') }}" ><i class="fa fa-lock"></i>QA Section</a></li>
                             @endif
                             <li class="{{ request()->is('admin/courses') ? ' active' : '' }}"><a href="{{ route('admin.index.course') }}" ><i class="fa fa-clipboard"></i>Courses</a></li>
                             <li class="{{ request()->is('admin/enroll-form') ? ' active' : '' }}"><a href="{{ route('admin.csr.enroll-student') }}" ><i class="fa fa-user-plus"></i>Enroll Student Manually</a></li>

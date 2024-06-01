@@ -1,6 +1,11 @@
 @extends('admin.layouts.app')
 @section('content')
 
+<style>
+    .wizard .content{
+        min-height: 20px !important;
+    }
+</style>
         <!-- mani page content body part -->
         <div id="main-content">
             <div class="container-fluid">
@@ -134,6 +139,61 @@
                                     </div>                
                                 </div>
                                 @endforeach
+                            </div>
+                        </div>                
+                    </div>
+                </div>
+                @endif
+
+
+                @if(getUserType() == 'csr' && Auth::user()->role_id == 1)
+                <div class="row clearfix row-deck">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="header">
+                                <h2>CSR TODAY ACTIVITY
+                                </h2>
+                            </div>
+                            <div class="body">
+                                <div id="wizard_vertical">
+                                    @foreach($csrs as $csr)
+                                   
+                                        <h2 class="text-white" style="color: #fff !important;">{{ $csr->name }}</h2>
+                                        <section>
+                                            <div class="row clearfix row-deck">
+                                                <div class="col-md-4">
+                                                    <div class="card top_widget">
+                                                        <div class="body">
+                                                            <div class="icon"><i class="mdi mdi-cellphone"></i></div>
+                                                            <div class="content">
+                                                                <div class="text mb-2 text-uppercase">Today Calls</div>
+                                                                <h4 class="number mb-0">{{ \App\Models\Admin\CsrStudent::where('csr_id', $csr->id)->whereDate('called_at', \Carbon\Carbon::today()->toDateString())->count() }}</h4>
+                                                                <small class="text-muted">Analytics for Today</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+        
+                                                @foreach ($actionStatus as $status)
+                                                    <div class="col-md-4">
+                                                        <div class="card top_widget">
+                                                            <a href="{{ route('admin.filter.action.status.today',  ['id' => $status->id, 'csr' => $csr->id]) }}">
+                                                                <div class="body">
+                                                                    <div class="icon"><i class="{{ $status->icon }}"></i></div>
+                                                                    <div class="content">
+                                                                        <div class="text mb-2 text-uppercase">{{ $status->name }}</div>
+                                                                        <h4 class="number mb-0">{{ $status->CsrStudent()->where('csr_id', $csr->id)->whereDate('called_at', \Carbon\Carbon::today())->count() }}</h4>
+                                                                        <small class="text-muted">Analytics for Today</small>
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </section>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>                
                     </div>

@@ -99,6 +99,26 @@ class CSRDataController extends Controller
         return view('admin.csr.filter-action-status', compact('students', 'action'));
     }
 
+
+    public function getFollowUpData(){
+        $students = CsrStudent::where('remarks', '!=', null)->get();
+
+        return view('admin.csr.remarks-data', compact('students'));
+    }
+
+    public function teamLeadFollowUp( Request $request ,$id){
+        $student = CsrStudent::find($id);
+        // dd($student);
+
+        $student->update([
+            'remarks' => $request->remarks,
+            'remark_user' => Auth::user()->id,
+            'remark_date' => now(),
+        ]);
+
+        return back()->withSuccess('Remarks added successfully!');
+    }
+
     public function filterActionStatuses($id){
         $user = Auth::user();
         $students = CsrStudent::where(['csr_id' => $user->id, 'action_status_id' => $id])->get();

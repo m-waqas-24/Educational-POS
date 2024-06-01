@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\CsrStudent;
+use App\Models\DataDistributionRecord;
 use App\Models\ImportStudent;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DistributeDataController extends Controller
 {
@@ -42,8 +44,8 @@ class DistributeDataController extends Controller
     
     
 
-    public function distribute(Request $request){
-
+    public function distribute(Request $request)
+    {
         $request->validate([
             'from' => 'required',
             'to' => 'required',
@@ -56,33 +58,59 @@ class DistributeDataController extends Controller
         $csrCount = count($request->csr);
         $csrIndex = 0;
     
+        // Initialize an array to keep track of the distribution count per CSR
+        $csrDistribution = array_fill_keys($request->csr, 0);
+    
         $students = ImportStudent::where('is_distributed', 0)
             ->where('course', 'like', '%' . $request->course . '%')
             ->whereBetween('datetime', [$from, $to])
             ->get();
-    
-        if($students->count() > 0){
-            foreach($students as $stu){
+        
+        $totalStudents = $students->count();
+        
+        if ($totalStudents > 0) {
+            foreach ($students as $stu) {
                 $csrId = $request->csr[$csrIndex];
-    
+        
                 $stu->update([
                     'is_distributed' => 1,
                 ]);
-    
+        
                 CsrStudent::create([
                     'csr_id' => $csrId,
                     'student_id' => $stu->id,
                 ]);
     
+                // Increment the count for the current CSR
+                $csrDistribution[$csrId]++;
+        
                 // Move to the next CSR or go back to the first one in a round-robin manner
                 $csrIndex = ($csrIndex + 1) % $csrCount;
             }
+            
+            // Create the data distribution record
+            DataDistributionRecord::create([
+                'user_id' => Auth::user()->id,
+                'total' => $totalStudents,
+                'team' => json_encode($csrDistribution), // Store the CSR IDs and their counts as a JSON string
+                'from' => $from,
+                'to' => $to,
+            ]);
+    
             return back()->withSuccess('Data Distributed Successfully!');
         } else {
             return back()->withErrors('There is no data between this date range!');
         }
     }
     
+    
+    
+    
+    public function distributionRecord(){
+        $reports = DataDistributionRecord::all();
+
+        return view('admin.distribute-data.recoords', compact('reports'));
+    }
     
     public function filterDistributedData(Request $request) {
         $importedStudents = ImportStudent::orderBy('id', 'DESC')->where('is_distributed', 0)->get();

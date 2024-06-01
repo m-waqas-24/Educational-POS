@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDataActivityLogsTable extends Migration
+class CreateStudentCourseCommentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,12 @@ class CreateDataActivityLogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('data_activity_logs', function (Blueprint $table) {
+        Schema::create('student_course_comments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('csr_id')->nullable();
-            $table->text('activity');
+            $table->unsignedBigInteger('student_course_id');
+            $table->unsignedBigInteger('user_id');
+            $table->longText('comments');
+            $table->unsignedBigInteger('is_read')->default(0)->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ class CreateDataActivityLogsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('data_activity_logs');
+        Schema::dropIfExists('student_course_comments');
     }
 }

@@ -60,6 +60,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
     });
 
     Route::controller(DistributeDataController::class)->group(function(){
+        Route::get('distribution-records', 'distributionRecord')->name('distribute.record');
         Route::get('distribution', 'index')->name('distribute.index');
         Route::post('distribute-data', 'distribute')->name('distribute');
         Route::post('total-student','getTotalData')->name('count.student');
@@ -86,6 +87,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::get('filter-student', 'filterStudent')->name('filter.student');
         Route::get('filter-student-courses/{id?}', 'showStudentCourses')->name('filter.student.courses');
         Route::get('filter-followup/{id?}', 'filterFollowup')->name('filter.followup');
+        Route::put('store-remarks/{id?}', 'teamLeadFollowUp')->name('store.remarks');
+        Route::get('followupdata-remarks', 'getFollowUpData')->name('data.remarks');
     });
 
     Route::controller(CourseController::class)->group(function(){

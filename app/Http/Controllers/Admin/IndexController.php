@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\CsrActionStatus;
 use App\Models\Admin\CsrStudent;
+use App\Models\DataDistributionRecord;
 use App\Models\ImportStudent;
 use App\Models\Student;
 use App\Models\StudentCourse;

@@ -6,11 +6,11 @@
         <div class="block-header">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-12">
-                    <h2> {{ $action->name }} Students List</h2>
+                    <h2> QA Students List</h2>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="fa fa-dashboard"></i></a></li>                            
                         <li class="breadcrumb-item">Dashboard</li>
-                        <li class="breadcrumb-item active">{{ $action->name }} Students</li>
+                        <li class="breadcrumb-item active">QA Students List</li>
                     </ul>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-12">
@@ -26,7 +26,7 @@
             </div>
         </div>
 
-        <div class="card">
+        {{-- <div class="card">
             <div class="body">
                 <form action="{{ route('admin.filter.followup', $action->id) }}" method="GET" enctype="multipart/form-data">
                     @csrf
@@ -45,7 +45,7 @@
                     </div>
                 </form>
             </div>
-        </div>
+        </div> --}}
         
         <div class="row clearfix">
             <div class="col-lg-12">
@@ -62,7 +62,9 @@
                                         <th class="text-uppercase">Course</th>
                                         <th class="text-uppercase">City</th>
                                         <th class="text-uppercase">Last Called</th>
-                                        <th class="text-uppercase">Action</th>
+                                        <th class="text-uppercase">Remarks</th>
+                                        <th class="text-uppercase">Remark By User</th>
+                                        <th class="text-uppercase">Remark Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -75,17 +77,13 @@
                                         <td>{{ $student->student->course }}</td>
                                         <td>{{ $student->student->city }}</td>
                                         <td>{{ \Carbon\Carbon::parse($student->called_at)->format('d F Y h:i:A') }}</td>
-                                        <td>
-                                            @if(Auth::user()->id == $student->csr_id)
-                                                <a href="{{ route('admin.csr.show.student', $student->id) }}" class="btn btn-sm btn-primary"><i class="fa fa-eye"></i></a>
-                                            @endif
-                                            @if(!$student->remarks)
-                                                <a href="#" class="btn btn-sm btn-primary"  data-toggle="modal" data-target="#largeModal_{{ $student->id }}"><i class="fa fa-info"></i></a>
-                                            @endif
-                                        </td>
+                                        <td>{{ $student->remarks }}</td>
+                                        <td>{{ $student->remarkUser->name }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($student->remark_date)->format('d F Y h:i:A') }}</td>
+                                        
                                     </tr>
 
-                                    <div class="modal fade" id="largeModal_{{ $student->id }}" tabindex="-1" role="dialog">
+                                    {{-- <div class="modal fade" id="largeModal_{{ $student->id }}" tabindex="-1" role="dialog">
                                         <div class="modal-dialog modal-lg" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header bg-primary">
@@ -111,7 +109,7 @@
                                                 </form>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                     @endforeach
                                 </tbody>
                             </table>

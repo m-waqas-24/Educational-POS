@@ -27,4 +27,8 @@ class CsrStudent extends Model
         return $this->belongsTo(Student::class, 'enroll_student_id', 'id');
     }
 
+    public function remarkUser(){
+        return $this->belongsTo(User::class, 'remark_user', 'id');
+    }
+
 }

@@ -49,6 +49,13 @@ class SourceSeeder extends Seeder
             'password' => Hash::make('password'),
             'type' => 'csr',
        ]);
+        User::create([
+            'name' => 'test',
+            'email' => 'test@test.com',
+            'mob' => 0000000,
+            'password' => Hash::make('password'),
+            'type' => 'csr',
+       ]);
 
     }
 }
