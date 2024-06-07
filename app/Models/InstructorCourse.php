@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Batch extends Model
+class InstructorCourse extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -15,14 +15,4 @@ class Batch extends Model
     public function course(){
         return $this->belongsTo(Course::class, 'course_id', 'id');
     }
-
-    public function student(){
-        return $this->hasMany(StudentCourse::class, 'batch_id', 'id');
-    }
-
-    public function lectures(){
-        return $this->hasMany(BatchLecture::class, 'batch_id', 'id');
-    }
-
-
 }

@@ -68,7 +68,9 @@
                                           @endif
                                         </td>
                                         <td>
-                                          <a href="{{ route('admin.edit.batch', $batch->id) }}" class="btn btn-sm btn-warning"> <i class="fa fa-edit"></i> </a>
+                                            <a href="{{ route('admin.edit.batch', $batch->id) }}" class="btn btn-sm btn-warning"> <i class="fa fa-edit"></i> </a>
+                                            <a href="{{ route('admin.create.batch-lecture', $batch->id) }}" class="btn btn-sm btn-primary"> <i class="fa fa-plus me-2"></i> Lectures</a>
+                                            <a href="{{ route('admin.batch-attendance-report', $batch->id) }}" class="btn btn-sm btn-info"> <i class="fa fa-list me-2"></i> Attendance Report</a>
                                         </td>
                                     </tr>
                                     @endforeach

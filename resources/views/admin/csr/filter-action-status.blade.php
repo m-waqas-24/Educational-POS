@@ -31,6 +31,7 @@
                 <form action="{{ route('admin.filter.followup', $action->id) }}" method="GET" enctype="multipart/form-data">
                     @csrf
                     <div class="row clearfix">
+                        <input type="hidden" name="csr_id" value="{{ $csr ?? ''  }}">
                         <div class="col-md-9">
                             <label>Range</label>                                    
                             <div class="input-daterange input-group" data-provide="datepicker">
@@ -79,7 +80,7 @@
                                             @if(Auth::user()->id == $student->csr_id)
                                                 <a href="{{ route('admin.csr.show.student', $student->id) }}" class="btn btn-sm btn-primary"><i class="fa fa-eye"></i></a>
                                             @endif
-                                            @if(!$student->remarks)
+                                            @if(!$student->remarks && Auth::user()->type== 'csr' && Auth::user()->role_id == '1')
                                                 <a href="#" class="btn btn-sm btn-primary"  data-toggle="modal" data-target="#largeModal_{{ $student->id }}"><i class="fa fa-info"></i></a>
                                             @endif
                                         </td>

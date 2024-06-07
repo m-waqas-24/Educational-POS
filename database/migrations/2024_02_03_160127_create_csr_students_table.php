@@ -21,6 +21,9 @@ class CreateCsrStudentsTable extends Migration
             $table->dateTime('called_at')->nullable();
             $table->unsignedBigInteger('action_status_id')->default(0);
             $table->string('comments')->nullable();
+            $table->text('remarks')->nullable();
+            $table->unsignedBigInteger('remark_user')->nullable();
+            $table->dateTime('remark_date')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

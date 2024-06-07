@@ -36,6 +36,10 @@ class StudentCourse extends Model
         return $this->hasMany(StudentCourseComment::class, 'student_course_id', 'id');
     }
 
+    public function attendance(){
+        return $this->hasMany(StudentLectureAttendance::class, 'student_course_id', 'id');
+    }
+
     public function getLatestPaymentDate()
     {
         $latestDate = null;

@@ -24,7 +24,6 @@
 <link rel="stylesheet" href="{{ asset('assets/vendor/sweetalert/sweetalert.css') }}"/>
 <link rel="stylesheet" href="{{ asset('assets/vendor/toastr/toastr.min.css') }}">   
 
-
 <!-- MAIN Project CSS file -->
 <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
 
@@ -44,9 +43,10 @@
 <link rel="stylesheet" href="{{ asset('assets/vendor/nouislider/nouislider.min.css') }}" />
 
 
-<!-- VENDOR CSS -->
 <link rel="stylesheet" href="{{ asset('assets/vendor/nestable/jquery-nestable.css') }}"/>
 
+<!-- MAIN CSS -->
+<link rel="stylesheet" href="assets/css/main.css">
 
 </head>
 
@@ -118,11 +118,7 @@
             <div class="navbar-brand">
                 <button type="button" class="btn-toggle-offcanvas"><i class="fa fa-bars"></i></button>
                 <button type="button" class="btn-toggle-fullwidth"><i class="fa fa-bars"></i></button>
-                @if(getUserType() == 'superadmin')
-                    <a href="{{ route('admin.dashboard') }}">NIAIS</a>                
-                @else
-                    <a href="{{ route('admin.dashboard') }}">NIAIS</a>                
-                @endif
+                    <a href="{{ route('instructor.dashboard') }}">NIAIS</a>   
             </div>
             
             <div class="navbar-right">
@@ -145,16 +141,16 @@
         <button type="button" class="btn-toggle-offcanvas"><i class="fa fa-arrow-left"></i></button>
         <div class="sidebar-scroll">
             <div class="user-account">
-                @if(auth()->user()->img)
+                {{-- @if(auth()->user()->img)
                     <img src="{{ asset('storage/'.auth()->user()->img) }}" class="rounded-circle user-photo" alt="User Profile Picture">
-                @else
+                @else --}}
                     <img src="{{ asset('assets/images/user.png') }}" class="rounded-circle user-photo" alt="User Profile Picture">
-                @endif
+                {{-- @endif --}}
                 <div class="dropdown">
                     <span>Welcome,</span>
                     <a href="javascript:void(0);" class="dropdown-toggle user-name" data-toggle="dropdown"><strong>{{ Auth::user()->name }}</strong></a>
                     <ul class="dropdown-menu dropdown-menu-right account">
-                        <li><a href="{{ route('admin.profile') }}"><i class="fa fa-user"></i>My Profile</a></li>
+                        {{-- <li><a href="{{ route('admin.profile') }}"><i class="fa fa-user"></i>My Profile</a></li> --}}
                         <li class="divider"></li>
                         <li>
                             <a href="{{ route('logout') }}"
@@ -182,75 +178,9 @@
                 <div class="tab-pane active" id="menu">
                     <nav id="left-sidebar-nav" class="sidebar-nav">
                         <ul class="metismenu li_animation_delay">
-                            @if(getUserType() == 'superadmin' || getUserType() == 'admin')
-                            @if(getUserType() == 'superadmin')
-                                    <li class="{{ request()->is('admin/-dashboard') ? ' active' : '' }}">
-                                        <a href="{{ route('admin.dashboard') }}" ><i class="fa fa-dashboard"></i>Dashboard</a>
-                                    </li>
-                                @else
-                                    <li class="{{ request()->is('admin/dashboard') ? ' active' : '' }}">
-                                        <a href="{{ route('admin.dashboard') }}" ><i class="fa fa-dashboard"></i>Dashboard</a>
-                                    </li>
-                                @endif
-                                <li class="{{ request()->input('status') == 2 || request()->input('status') == 1 ? 'active' : '' }}">
-                                    <a href="#Tables" class="has-arrow"><i class="fa fa-users"></i><span>All Students</span></a>
-                                    <ul>
-                                        <li class="{{ request()->input('status') == 2 ? 'active' : '' }}">
-                                            <a href="{{ route('admin.index.students', ['status' => 2]) }}">Partial <span class="badge badge-danger float-right">{{ partialStudents() }}</span></a>
-                                        </li>
-                                        <li class="{{ request()->input('status') == 1 ? 'active' : '' }}">
-                                            <a href="{{ route('admin.index.students', ['status' => 1]) }}">Paid <span class="badge badge-success float-right">{{ paidStudents() }}</span></a> 
-                                        </li>
-                                        <li class="{{ request()->is('admin/discontinued-students') ? 'active' : '' }}">
-                                            <a href="{{ route('admin.discontinued.students') }}">Discontinued <span class="badge badge-success float-right">{{ getDiscontinuedStudent() }}</span></a> 
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="{{ request()->is('admin/hold-students') ? ' active' : '' }}"><a href="{{ route('admin.hold.students') }}" ><i class="fa fa-stop"></i>CSR Students Hold <span class="badge badge-success float-right">{{ holdStudents() }}</span> </a></li>
-                                <li class="{{ request()->is('admin/distribution-records') ? ' active' : '' }}"><a href="{{ route('admin.distribute.record') }}" ><i class="fa fa-stop"></i>Distribution Records      </a></li>
-                                @if(getUserType() == 'admin')
-                                    <li class="{{ request()->is('admin/imported-data') ? ' active' : '' }}"><a href="{{ route('admin.index.import-data') }}" ><i class="fa fa-area-chart"></i>Import Data</a></li>
-                                    <li class="{{ request()->is('admin/duplicate-data') ? ' active' : '' }}"><a href="{{ route('admin.duplicate.import-data') }}" ><i class="fa fa-map"></i>Duplicate Data</a></li>
-                                    <li class="{{ request()->is('admin/distribution') ? ' active' : '' }}"><a href="{{ route('admin.distribute.index') }}" ><i class="fa fa-lock"></i>Distribute Data</a></li>
-                                    <li class="{{ request()->is('admin/instructors') ? ' active' : '' }}"><a href="{{ route('admin.index.instructors') }}" ><i class="fa fa-list"></i>Instructors</a></li>
-                                    <li class="{{ request()->is('admin/csr-reports') ? ' active' : '' }}"><a href="{{ route('admin.csr.reports') }}" ><i class="fa fa-list"></i>CSR Reports</a></li>
-                                  
-                                @endif
-                                <li class="{{ request()->is('admin/csrs') ? ' active' : '' }}"><a href="{{ route('admin.csr.index') }}" ><i class="fa fa-user"></i>CSR Management</a></li>
-                                <li class="{{ request()->is('admin/batches') ? ' active' : '' }}"><a href="{{ route('admin.index.batches') }}" ><i class="fa fa-th-list"></i>Batches</a></li>
-                                {{-- <li class="{{ request()->is('admin/orientations') ? ' active' : '' }}"><a href="{{ route('admin.index.orientations') }}" ><i class="fa fa-link"></i>Orientations</a></li> --}}
-                            @endif
-                            @if(getUserType() == 'superadmin')
-                                <li class="{{ request()->is('admin/banks') ? ' active' : '' }}"><a href="{{ route('admin.index.bank') }}" ><i class="fa fa-money"></i>Banks</a></li>
-                                {{-- <li class="{{ request()->is('admin/banks') ? ' active' : '' }}"><a href="" ><i class="fa fa-money"></i>Workshops</a></li> --}}
-                            @endif
-
-                            @if(auth()->user()->type == 'csr')
-                            <li class="{{ request()->is('admin/dashboard') ? ' active' : '' }}">
-                                <a href="{{ route('admin.dashboard') }}" ><i class="fa fa-dashboard"></i>Dashboard</a>
+                            <li class="{{ request()->is('instructor/dashboard') ? ' active' : '' }}">
+                                <a href="{{ route('instructor.dashboard') }}" ><i class="fa fa-dashboard"></i>Courses</a>
                             </li>
-                            <li class="{{ request()->input('status') == 2 || request()->input('status') == 1 ? 'active' : '' }}">
-                                <a href="#Tables" class="has-arrow"><i class="fa fa-users"></i><span>All Students</span></a>
-                                <ul>
-                                    <li class="{{ request()->input('status') == 2 ? 'active' : '' }}">
-                                        <a href="{{ route('admin.index.students', ['status' => 2]) }}">Partial Students <span class="badge badge-warning float-right">{{ partialStudents() }}</span></a>
-                                    </li>
-                                    <li class="{{ request()->input('status') == 1 ? 'active' : '' }}">
-                                        <a href="{{ route('admin.index.students', ['status' => 1]) }}">Paid Students <span class="badge badge-warning float-right">{{ paidStudents() }}</span></a> 
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="{{ request()->is('admin/hold-students') ? ' active' : '' }}"><a href="{{ route('admin.hold.students') }}" ><i class="fa fa-stop"></i>CSR Students Hold <span class="badge badge-success float-right">{{ holdStudents() }}</span> </a></li>
-                            <li class="{{ request()->is('admin/csr-students-data') ? ' active' : '' }}"><a href="{{ route('admin.csr-data.index') }}" ><i class="fa fa-user"></i>Students Data</a></li>
-
-                            @endif
-                            @if((auth()->user()->type == 'csr' && Auth::user()->role_id == 1)  || getUserType() == 'superadmin' || getUserType() == 'admin')
-                            <li class="{{ request()->is('admin/followupdata-remarks') ? ' active' : '' }}"><a href="{{ route('admin.data.remarks') }}" ><i class="fa fa-lock"></i>QA Section</a></li>
-                            @endif
-                            <li class="{{ request()->is('admin/courses') ? ' active' : '' }}"><a href="{{ route('admin.index.course') }}" ><i class="fa fa-clipboard"></i>Courses</a></li>
-                            <li class="{{ request()->is('admin/all-requests') ? ' active' : '' }}"><a href="{{ route('admin.index.requests') }}" ><i class="fa fa-user"></i>Team Requests</a></li>
-                            <li class="{{ request()->is('admin/enroll-form') ? ' active' : '' }}"><a href="{{ route('admin.csr.enroll-student') }}" ><i class="fa fa-user-plus"></i>Enroll Student Manually</a></li>
-
                         </ul>
                     </nav>
                 </div>
@@ -408,6 +338,11 @@
 <script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
 <script src="{{ asset('assets/vendor/bootstrap-tagsinput/bootstrap-tagsinput.js') }}"></script>  
 <script src="{{ asset('assets/vendor/nouislider/nouislider.js') }}"></script>  
+
+
+
+<!-- page js file -->
+<script src="{{ asset('assets/js/pages/ui/dialogs.js') }}"></script>
 
     
 

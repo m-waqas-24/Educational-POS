@@ -111,37 +111,37 @@ class IndexController extends Controller
         }
 
         $monthlyPartialEnrollStudentCountsByCSR = StudentCourse::join('student_course_payments', 'student_courses.id', '=', 'student_course_payments.student_course_id')
-    ->join('students', 'students.id', '=', 'student_courses.student_id')
-    ->join('users', 'users.id', '=', 'students.csr_id')
-    ->select(
-        'users.id as csr_id',
-        'users.name as csr_name',
-        DB::raw('MONTH(student_course_payments.payment_date_first) as month'),
-        DB::raw('count(DISTINCT CASE WHEN student_courses.status_id = 2 THEN student_courses.id END) as count')
-    )
-    ->whereYear('student_course_payments.payment_date_first', $currentYear)
-    ->whereIn('students.csr_id', $filtercsrs->keys())
-    ->groupBy('users.id', 'users.name', DB::raw('MONTH(student_course_payments.payment_date_first)'))
-    ->orderBy('users.name')
-    ->orderBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
-    ->get();
+            ->join('students', 'students.id', '=', 'student_courses.student_id')
+            ->join('users', 'users.id', '=', 'students.csr_id')
+            ->select(
+                'users.id as csr_id',
+                'users.name as csr_name',
+                DB::raw('MONTH(student_course_payments.payment_date_first) as month'),
+                DB::raw('count(DISTINCT CASE WHEN student_courses.status_id = 2 THEN student_courses.id END) as count')
+            )
+            ->whereYear('student_course_payments.payment_date_first', $currentYear)
+            ->whereIn('students.csr_id', $filtercsrs->keys())
+            ->groupBy('users.id', 'users.name', DB::raw('MONTH(student_course_payments.payment_date_first)'))
+            ->orderBy('users.name')
+            ->orderBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
+            ->get();
 
-    $csrPartialEnrollData = [];
-foreach ($monthlyPartialEnrollStudentCountsByCSR as $data) {
-    $csrName = $data->csr_name;
-    $month = $data->month;
-    $year = $currentYear;
+            $csrPartialEnrollData = [];
+            foreach ($monthlyPartialEnrollStudentCountsByCSR as $data) {
+                $csrName = $data->csr_name;
+                $month = $data->month;
+                $year = $currentYear;
 
-    if (!isset($csrPartialEnrollData[$csrName])) {
-        $csrPartialEnrollData[$csrName] = [];
-    }
+                if (!isset($csrPartialEnrollData[$csrName])) {
+                    $csrPartialEnrollData[$csrName] = [];
+                }
 
-    if (!isset($csrPartialEnrollData[$csrName][$year])) {
-        $csrPartialEnrollData[$csrName][$year] = array_fill(1, 12, 0);
-    }
+                if (!isset($csrPartialEnrollData[$csrName][$year])) {
+                    $csrPartialEnrollData[$csrName][$year] = array_fill(1, 12, 0);
+                }
 
-    $csrPartialEnrollData[$csrName][$year][$month] = $data->count;
-}
+                $csrPartialEnrollData[$csrName][$year][$month] = $data->count;
+            }
     
             return view('admin.dashboard.dashboard', compact(
                 'actionStatus',  'totalCallToday', 'csrId', 'csrData', 'csrEnrollData', 'csrs', 'csrPartialEnrollData'

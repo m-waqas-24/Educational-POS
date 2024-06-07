@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Batch;
+use App\Models\BatchLecture;
 use App\Models\Course;
+use App\Models\StudentCourse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BadgeController extends Controller
 {
@@ -73,4 +76,59 @@ class BadgeController extends Controller
 
        return redirect()->route('admin.index.batches')->withSuccess('Batch has been Updated Successfully');
     }
+
+    public function createBatchLecture($id){
+        $batch = Batch::with(['lectures' => function($query) {
+            $query->orderBy('date_time', 'asc');
+        }])->find($id);
+
+        return view('admin.batches.batch-lectures', compact('batch'));
+    }
+
+    public function storeBatchLecture(Request $request, $id){
+        $request->validate([
+            'title' => 'required|array',
+            'title.*' => 'required|string',
+            'date_time' => 'required|array',
+            'date_time.*' => 'required|date',
+            'lecture_id' => 'nullable|array',
+            'lecture_id.*' => 'nullable|exists:batch_lectures,id',
+        ]);
+    
+        $userId = Auth::id();
+    
+        foreach($request->date_time as $index => $dateTime){
+            $data = [
+                'user_id' => $userId,
+                'batch_id' => $id,
+                'title' => $request->title[$index],
+                'zoom_link' => $request->zoom_link[$index],
+                'date_time' => $dateTime,
+            ];
+    
+            if (!empty($request->lecture_id[$index])) {
+                // Update existing lecture
+                BatchLecture::where('id', $request->lecture_id[$index])->update($data);
+            } else {
+                // Create new lecture
+                BatchLecture::create($data);
+            }
+        }
+    
+        return back()->withSuccess('Lectures created successfully!');
+    }
+    
+
+    public function badgeAttendanceReport($batchId){
+        $batch = Batch::find($batchId);
+        $students = StudentCourse::where('batch_id', $batchId)->get();
+
+        if($batch->lectures->count() == 0){
+            return back()->withErrors($batch->course->name . "- Batch " . $batch->number .  ' Lectures not created yet!');
+        }
+
+        return view('admin.batches.batch-attendance', compact('batch', 'students'));
+    }
+    
+
 }

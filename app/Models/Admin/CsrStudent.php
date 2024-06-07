@@ -31,4 +31,8 @@ class CsrStudent extends Model
         return $this->belongsTo(User::class, 'remark_user', 'id');
     }
 
+    public function statusAction(){
+        return $this->belongsTo(CsrActionStatus::class, 'action_status_id', 'id');
+    }
+
 }

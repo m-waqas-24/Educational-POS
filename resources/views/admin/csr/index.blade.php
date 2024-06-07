@@ -10,7 +10,7 @@
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="fa fa-dashboard"></i></a></li>                            
                         <li class="breadcrumb-item">Dashboard</li>
-                        <li class="breadcrumb-item active">CSR's</li>
+                        <li class="breadcrumab-item active">CSR's</li>
                     </ul>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-12">

@@ -86,7 +86,8 @@
                                                                     ?>
                                                                     {!! $newComment !!}
                                                                 @endif
-                                                            </td>
+                                                            </td> 
+                    
                                                             <td>
                                                                 <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#largeModal_{{ $course->id }}"><i class="fa fa-eye"></i> </a>
                                                                 <a href="#" class="btn btn-warning add-comment" data-student-course="{{  $course->id }}">

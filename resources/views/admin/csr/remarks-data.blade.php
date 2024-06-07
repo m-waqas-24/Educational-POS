@@ -55,6 +55,9 @@
                             <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                                 <thead>
                                     <tr>
+                                        <th class="text-uppercase">Remarks</th>
+                                        <th class="text-uppercase">Remark By User</th>
+                                        <th class="text-uppercase">Remark Date</th>
                                         <th class="text-uppercase">Student Name</th>
                                         <th class="text-uppercase">Email</th>
                                         <th class="text-uppercase">Phone</th>
@@ -62,14 +65,15 @@
                                         <th class="text-uppercase">Course</th>
                                         <th class="text-uppercase">City</th>
                                         <th class="text-uppercase">Last Called</th>
-                                        <th class="text-uppercase">Remarks</th>
-                                        <th class="text-uppercase">Remark By User</th>
-                                        <th class="text-uppercase">Remark Date</th>
+                                   
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($students as $student)
                                     <tr>
+                                        <td>{{ $student->remarks }}</td>
+                                        <td>{{ $student->remarkUser->name }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($student->remark_date)->format('d F Y h:i:A') }}</td>
                                         <td>{{ $student->student->name }}</td>
                                         <td>{{ $student->student->email }}</td>
                                         <td><a href="https://wa.me/{{ $student->student->phone }}" target="_blank">{{ $student->student->phone }}</a></td>
@@ -77,9 +81,7 @@
                                         <td>{{ $student->student->course }}</td>
                                         <td>{{ $student->student->city }}</td>
                                         <td>{{ \Carbon\Carbon::parse($student->called_at)->format('d F Y h:i:A') }}</td>
-                                        <td>{{ $student->remarks }}</td>
-                                        <td>{{ $student->remarkUser->name }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($student->remark_date)->format('d F Y h:i:A') }}</td>
+                                    
                                         
                                     </tr>
 

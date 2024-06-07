@@ -53,4 +53,8 @@ class User extends Authenticatable
         return $this->hasMany(CsrStudent::class, 'csr_id', 'id');
     }
 
+    public function instructorCourses(){
+        return $this->hasMany(InstructorCourse::class, 'instructor_id', 'id');
+    }
+
 }

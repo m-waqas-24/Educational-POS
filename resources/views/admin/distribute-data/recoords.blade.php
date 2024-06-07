@@ -59,7 +59,6 @@
                                                 @endforeach
                                             @endif
                                         </td>
-                                        
                                         <td>{{ \Carbon\Carbon::parse($rep->from)->format('d F, Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($rep->to)->format('d F, Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($rep->created_at)->format('d F, Y / h:i:A') }}</td>

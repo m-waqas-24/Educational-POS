@@ -96,7 +96,7 @@ class CSRDataController extends Controller
         ])->whereDate('called_at', Carbon::today()->toDateString())->get();
         $action = CsrActionStatus::find($id);
 
-        return view('admin.csr.filter-action-status', compact('students', 'action'));
+        return view('admin.csr.filter-action-status', compact('students', 'action', 'csr'));
     }
 
 
@@ -167,7 +167,8 @@ class CSRDataController extends Controller
         $to = Carbon::createFromFormat('m/d/Y', $request->to)->endOfDay()->toDateTimeString();
     
         $user = Auth::user();
-        $students = CsrStudent::where(['csr_id' => $user->id, 'action_status_id' => $id]);
+        $csr = $request->csr_id;
+        $students = CsrStudent::where(['csr_id' => $csr, 'action_status_id' => $id]);
         $action = CsrActionStatus::find($id);
     
         if ($from && $to) {
@@ -178,7 +179,7 @@ class CSRDataController extends Controller
         // Fetch the filtered students
         $students = $students->get();
     
-        return view('admin.csr.filter-action-status', compact('students', 'action'));
+        return view('admin.csr.filter-action-status', compact('students', 'action', 'csr'));
     }
     
 

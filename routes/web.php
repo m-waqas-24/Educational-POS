@@ -10,8 +10,11 @@ use App\Http\Controllers\Admin\CsrManagementController;
 use App\Http\Controllers\Admin\DistributeDataController;
 use App\Http\Controllers\Admin\ImportDataController;
 use App\Http\Controllers\Admin\IndexController;
+use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Instructor\IndexController as InstructorIndexController;
 use App\Http\Controllers\OrientationController;
+use App\Http\Controllers\RequestController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentCourseController;
 use Illuminate\Support\Facades\Artisan;
@@ -59,6 +62,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::get('duplicate-data', 'duplicateData')->name('duplicate.import-data');
     });
 
+    Route::controller(RequestController::class)->group(function(){
+        Route::get('all-requests', 'index')->name('index.requests');
+        Route::post('store-request', 'store')->name('store.request');
+        
+        Route::post('edit-request', 'edit')->name('edit.request');
+        Route::put('update-request/{id?}', 'update')->name('update.request');
+        Route::get('update-status-request/{status_id?}/{request_id?}', 'updateStatus')->name('update.status.request');
+    });
+
     Route::controller(DistributeDataController::class)->group(function(){
         Route::get('distribution-records', 'distributionRecord')->name('distribute.record');
         Route::get('distribution', 'index')->name('distribute.index');
@@ -74,6 +86,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::put('csr-update/{id?}', 'update')->name('csr.update');
         Route::get('block-user/{id?}', 'blockUser')->name('user.block');
         Route::get('unblock-user/{id?}', 'UnblockUser')->name('user.unblock');
+        Route::get('csr-reports', 'csrReports')->name('csr.reports');
+        Route::get('search-csr-reports', 'searchCsrReports')->name('search.csr.reports');
     });
 
     Route::controller(CSRDataController::class)->group(function(){
@@ -89,6 +103,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::get('filter-followup/{id?}', 'filterFollowup')->name('filter.followup');
         Route::put('store-remarks/{id?}', 'teamLeadFollowUp')->name('store.remarks');
         Route::get('followupdata-remarks', 'getFollowUpData')->name('data.remarks');
+        
     });
 
     Route::controller(CourseController::class)->group(function(){
@@ -106,6 +121,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::post('store-batch/{id?}', 'store')->name('store.batch');
         Route::get('edit-batch/{id?}', 'edit')->name('edit.batch');
         Route::put('update-batch/{id?}', 'update')->name('update.batch');
+        Route::get('create-batch-lecture/{id?}', 'createBatchLecture')->name('create.batch-lecture');
+        Route::post('store-batch-lecture/{id?}', 'storeBatchLecture')->name('store.batch-lecture');
+        Route::get('batch-attendance-report/{batchId?}', 'badgeAttendanceReport')->name('batch-attendance-report');
     });
 
     Route::controller(BankController::class)->group(function(){
@@ -145,8 +163,26 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::put('update-orientation/{id?}', 'update')->name('update.orientation');
     });
 
+    Route::controller(InstructorController::class)->group(function(){
+        Route::get('instructors', 'index')->name('index.instructors');
+        Route::post('store-instructor', 'store')->name('store.instructor');
+        Route::get('edit-instructor/{id?}', 'edit')->name('edit.instructor');
+        Route::put('update-instructor/{id?}', 'update')->name('update.instructors');
+    });
+
 });
 
+Route::group(['prefix' => 'instructor', 'middleware' => ['auth', 'instructor', 'revalidate'], 'as' => 'instructor.'], function(){
+
+    Route::controller(InstructorIndexController::class)->group(function(){
+        Route::get('dashboard', 'dashboard')->name('dashboard');
+        Route::get('instructor-batches/{instructorId?}/{courseId?}', 'instructorBatches')->name('allBatches');
+        Route::get('lecture-batches/{batchId?}', 'batchLectures')->name('batch.lecture');
+        Route::get('student-lecture-attendance/{lectureId?}', 'studentAttendance')->name('student.attendance');
+        Route::post('mark-student-attendance/{lectureId?}', 'storeStudentAttendance')->name('store.student.attendance');
+    });
+
+});
 
 Route::get('accounts', [AccountsController::class, 'index'])->name('index.accounts')->middleware('auth');
 Route::get('search-accounts', [AccountsController::class, 'filterPayment'])->name('search.accounts')->middleware('auth');

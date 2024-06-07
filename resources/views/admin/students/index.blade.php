@@ -103,12 +103,9 @@
                                         <td>{{ $course->student->user->email }}</td>
                                         <td>{{ \Carbon\Carbon::parse($course->getLatestPaymentDate())->diffForHumans() }}</td>
                                         <td id="lastComment_{{$course->id}}" style="max-width: 200px; word-wrap: break-word;">
-                                             @if($course->comments->count() > 0)
+                                            @if($course->comments->count() > 0)
                                                 <?php
-                                                $lastComment = $course->comments->last();
-                                                $comment = $lastComment ? $lastComment->comment : null;
-
-                                                // $comment = $course->comments->last()->comments;
+                                                $comment = $course->comments->last()->comments;
                                                 $words = explode(' ', $comment);
                                                 $newComment = '';
                                                 $wordCount = 0;
@@ -121,9 +118,8 @@
                                                 }
                                                 ?>
                                                 {!! $newComment !!}
-                                            @endif 
-                                        </td>
-
+                                            @endif
+                                        </td> 
                                        
                                         <td>
                                             <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#largeModal_{{ $course->id }}"><i class="fa fa-eye"></i> </a>
