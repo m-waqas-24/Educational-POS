@@ -72,20 +72,23 @@ class IndexController extends Controller
                 $enrollStudentCountsByCSR[$csrName] = array_fill(1, 12, 0);
             }
             
-            $monthlyEnrollStudentCountsByCSR = StudentCourse::join('student_course_payments', 'student_courses.id', '=', 'student_course_payments.student_course_id')
+            $monthlyEnrollStudentCountsByCSR = StudentCourse::join('student_course_payments', function($join) {
+                $join->on('student_courses.id', '=', 'student_course_payments.student_course_id')
+                     ->whereRaw('student_course_payments.payment_date_first = (SELECT MIN(payment_date_first) FROM student_course_payments WHERE student_course_id = student_courses.id)');
+            })
             ->join('students', 'students.id', '=', 'student_courses.student_id')
             ->join('users', 'users.id', '=', 'students.csr_id')
             ->select(
                 'users.id as csr_id',
                 'users.name as csr_name',
                 DB::raw('MONTH(student_course_payments.payment_date_first) as month'),
-                DB::raw('count(DISTINCT student_courses.id) as count')
+                DB::raw('YEAR(student_course_payments.payment_date_first) as year'),
+                DB::raw('count(*) as count')
             )
-            ->whereYear('student_course_payments.payment_date_first', $currentYear)
             ->whereIn('students.csr_id', $filtercsrs->keys())
-            ->groupBy('users.id', 'users.name', DB::raw('MONTH(student_course_payments.payment_date_first)'))
+            ->whereYear('student_course_payments.payment_date_first', $currentYear)
+            ->groupBy('users.id', 'users.name', DB::raw('MONTH(student_course_payments.payment_date_first)'), DB::raw('YEAR(student_course_payments.payment_date_first)'))
             ->orderBy('users.name')
-            ->orderBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
             ->get();
         
         $csrEnrollData = [];
@@ -110,22 +113,25 @@ class IndexController extends Controller
             $partialEnrollStudentCountsByCSR[$csrName] = array_fill(1, 12, 0);
         }
 
-        $monthlyPartialEnrollStudentCountsByCSR = StudentCourse::join('student_course_payments', 'student_courses.id', '=', 'student_course_payments.student_course_id')
-            ->join('students', 'students.id', '=', 'student_courses.student_id')
-            ->join('users', 'users.id', '=', 'students.csr_id')
-            ->select(
-                'users.id as csr_id',
-                'users.name as csr_name',
-                DB::raw('MONTH(student_course_payments.payment_date_first) as month'),
-                DB::raw('count(DISTINCT CASE WHEN student_courses.status_id = 2 THEN student_courses.id END) as count')
-            )
-            ->whereYear('student_course_payments.payment_date_first', $currentYear)
-            ->whereIn('students.csr_id', $filtercsrs->keys())
-            ->groupBy('users.id', 'users.name', DB::raw('MONTH(student_course_payments.payment_date_first)'))
-            ->orderBy('users.name')
-            ->orderBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
-            ->get();
-
+        $monthlyPartialEnrollStudentCountsByCSR = StudentCourse::join('student_course_payments', function($join) {
+            $join->on('student_courses.id', '=', 'student_course_payments.student_course_id')
+                 ->whereRaw('student_course_payments.payment_date_first = (SELECT MIN(payment_date_first) FROM student_course_payments WHERE student_course_id = student_courses.id)');
+        })
+        ->join('students', 'students.id', '=', 'student_courses.student_id')
+        ->join('users', 'users.id', '=', 'students.csr_id')
+        ->select(
+            'users.id as csr_id',
+            'users.name as csr_name',
+            DB::raw('MONTH(student_course_payments.payment_date_first) as month'),
+            DB::raw('count(DISTINCT CASE WHEN student_courses.status_id = 2 THEN student_courses.id END) as count')
+        )
+        ->whereYear('student_course_payments.payment_date_first', $currentYear)
+        ->whereIn('students.csr_id', $filtercsrs->keys())
+        ->groupBy('users.id', 'users.name', DB::raw('MONTH(student_course_payments.payment_date_first)'))
+        ->orderBy('users.name')
+        ->orderBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
+        ->get();
+        
             $csrPartialEnrollData = [];
             foreach ($monthlyPartialEnrollStudentCountsByCSR as $data) {
                 $csrName = $data->csr_name;
@@ -190,20 +196,28 @@ class IndexController extends Controller
 
 
             //========Get month-wise student enrollments based on the first payment date, grouped by student_course_id start========
-            $monthlyEnrollStudentCounts = StudentCourse::join('student_course_payments', 'student_courses.id', '=', 'student_course_payments.student_course_id')
-            ->select(DB::raw('MONTH(MIN(student_course_payments.payment_date_first)) as month'), DB::raw('count(DISTINCT student_courses.id) as count'))
+            $monthlyEnrollStudentCounts = StudentCourse::select(
+                DB::raw('MONTH(MIN(student_course_payments.payment_date_first)) as month'),
+                DB::raw('count(*) as count')
+            )
+            ->join('student_course_payments', function($join) {
+                $join->on('student_courses.id', '=', 'student_course_payments.student_course_id')
+                    ->whereRaw('student_course_payments.payment_date_first = (SELECT MIN(payment_date_first) FROM student_course_payments WHERE student_course_id = student_courses.id)');
+            })
             ->whereYear('student_course_payments.payment_date_first', $currentYear)
             ->groupBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
             ->orderBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
             ->get()
             ->keyBy('month')
             ->toArray();
-            // Initialize an array to hold the counts for each month
-            $enrollStudentCountsByMonth = array_fill(1, 12, 0);
-            // Fill the enrollStudentCountsByMonth array with the actual data
-            foreach ($monthlyEnrollStudentCounts as $month => $data) {
+        
+        // Initialize an array to hold the counts for each month
+        $enrollStudentCountsByMonth = array_fill(1, 12, 0); 
+        
+        // Fill the enrollStudentCountsByMonth array with the actual data
+        foreach ($monthlyEnrollStudentCounts as $month => $data) {
             $enrollStudentCountsByMonth[$month] = $data['count'];
-            }
+        }      
             //===========Get month-wise student enrollments based on the first payment date, grouped by student_course_id end===========
 
 
@@ -252,21 +266,26 @@ class IndexController extends Controller
                 $enrollStudentCountsByCSR[$csrName] = array_fill(1, 12, 0);
             }
             
-            $monthlyEnrollStudentCountsByCSR = StudentCourse::join('student_course_payments', 'student_courses.id', '=', 'student_course_payments.student_course_id')
+            $monthlyEnrollStudentCountsByCSR = StudentCourse::join('student_course_payments', function($join) {
+                $join->on('student_courses.id', '=', 'student_course_payments.student_course_id')
+                     ->whereRaw('student_course_payments.payment_date_first = (SELECT MIN(payment_date_first) FROM student_course_payments WHERE student_course_id = student_courses.id)');
+            })
             ->join('students', 'students.id', '=', 'student_courses.student_id')
             ->join('users', 'users.id', '=', 'students.csr_id')
             ->select(
                 'users.id as csr_id',
                 'users.name as csr_name',
                 DB::raw('MONTH(student_course_payments.payment_date_first) as month'),
-                DB::raw('count(DISTINCT student_courses.id) as count')
+                DB::raw('YEAR(student_course_payments.payment_date_first) as year'),
+                DB::raw('count(*) as count')
             )
-            ->whereYear('student_course_payments.payment_date_first', $currentYear)
             ->whereIn('students.csr_id', $filtercsrs->keys())
-            ->groupBy('users.id', 'users.name', DB::raw('MONTH(student_course_payments.payment_date_first)'))
+            ->whereYear('student_course_payments.payment_date_first', $currentYear)
+            ->groupBy('users.id', 'users.name', DB::raw('MONTH(student_course_payments.payment_date_first)'), DB::raw('YEAR(student_course_payments.payment_date_first)'))
             ->orderBy('users.name')
-            ->orderBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
             ->get();
+        
+
         
         $csrEnrollData = [];
         foreach ($monthlyEnrollStudentCountsByCSR as $data) {
@@ -290,21 +309,25 @@ class IndexController extends Controller
             $partialEnrollStudentCountsByCSR[$csrName] = array_fill(1, 12, 0);
         }
 
-        $monthlyPartialEnrollStudentCountsByCSR = StudentCourse::join('student_course_payments', 'student_courses.id', '=', 'student_course_payments.student_course_id')
-    ->join('students', 'students.id', '=', 'student_courses.student_id')
-    ->join('users', 'users.id', '=', 'students.csr_id')
-    ->select(
-        'users.id as csr_id',
-        'users.name as csr_name',
-        DB::raw('MONTH(student_course_payments.payment_date_first) as month'),
-        DB::raw('count(DISTINCT CASE WHEN student_courses.status_id = 2 THEN student_courses.id END) as count')
-    )
-    ->whereYear('student_course_payments.payment_date_first', $currentYear)
-    ->whereIn('students.csr_id', $filtercsrs->keys())
-    ->groupBy('users.id', 'users.name', DB::raw('MONTH(student_course_payments.payment_date_first)'))
-    ->orderBy('users.name')
-    ->orderBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
-    ->get();
+        $monthlyPartialEnrollStudentCountsByCSR = StudentCourse::join('student_course_payments', function($join) {
+            $join->on('student_courses.id', '=', 'student_course_payments.student_course_id')
+                 ->whereRaw('student_course_payments.payment_date_first = (SELECT MIN(payment_date_first) FROM student_course_payments WHERE student_course_id = student_courses.id)');
+        })
+        ->join('students', 'students.id', '=', 'student_courses.student_id')
+        ->join('users', 'users.id', '=', 'students.csr_id')
+        ->select(
+            'users.id as csr_id',
+            'users.name as csr_name',
+            DB::raw('MONTH(student_course_payments.payment_date_first) as month'),
+            DB::raw('count(DISTINCT CASE WHEN student_courses.status_id = 2 THEN student_courses.id END) as count')
+        )
+        ->whereYear('student_course_payments.payment_date_first', $currentYear)
+        ->whereIn('students.csr_id', $filtercsrs->keys())
+        ->groupBy('users.id', 'users.name', DB::raw('MONTH(student_course_payments.payment_date_first)'))
+        ->orderBy('users.name')
+        ->orderBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
+        ->get();
+    
 
     $csrPartialEnrollData = [];
 foreach ($monthlyPartialEnrollStudentCountsByCSR as $data) {

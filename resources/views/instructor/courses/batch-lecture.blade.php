@@ -125,7 +125,7 @@
                                             <tr>
                                                 <th>Students</th>
                                                 @foreach ($lecture->batch->lectures->sortBy('date_time') as $batchLecture)
-                                                <th>{{ \Carbon\Carbon::parse($batchLecture->date_time)->format('d F, Y') }}</th>
+                                                    <th>{{ \Carbon\Carbon::parse($batchLecture->date_time)->format('d F, Y') }} </th>
                                                 @endforeach
                                                 <th>Total Present</th>
                                                 <th>Total Lectures</th>
@@ -145,8 +145,14 @@
                                                     @php
                                                         $attendance = $student->attendance()->where('lecture_id', $batchLecture->id)->first();
                                                         if ($attendance) {
-                                                            $totalPresent++;
-                                                            echo $attendance->attendanceStatus->name;
+                                                            if ($attendance->status == 1) {
+                                                                $totalPresent++;
+                                                                echo 'Present';
+                                                            } elseif ($attendance->status == 2) {
+                                                                echo 'Absent';
+                                                            } elseif ($attendance->status == 3) {
+                                                                echo 'Leave';
+                                                            }
                                                         } else {
                                                             echo '-';
                                                         }
@@ -160,6 +166,7 @@
                                             @endforeach
                                         </tbody>
                                     </table>
+                                    
                                 </div>
                             </div>
                         </div>

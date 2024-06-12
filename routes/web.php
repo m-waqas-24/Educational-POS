@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountsController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BadgeController;
+use App\Http\Controllers\Admin\BadgeReportController;
 use App\Http\Controllers\Admin\BankController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\CSRDataController;
@@ -13,10 +14,12 @@ use App\Http\Controllers\Admin\IndexController;
 use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Instructor\IndexController as InstructorIndexController;
+use App\Http\Controllers\Instructor\ProfileController as InstructorProfileController;
 use App\Http\Controllers\OrientationController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentCourseController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -106,6 +109,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         
     });
 
+    Route::controller(BadgeReportController::class)->group(function(){
+        Route::get('batch-report/{id?}', 'batchReport')->name('batch.report');
+        Route::post('store-batch-report/{id?}', 'storeReport')->name('storeReport');
+    });
+
     Route::controller(CourseController::class)->group(function(){
         Route::get('courses', 'index')->name('index.course');
         Route::post('store-course', 'store')->name('store.course');
@@ -113,6 +121,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::put('update-course/{id?}', 'update')->name('update.course');
         Route::get('course-batches/{id?}', 'courseBatches')->name('course.batch');  
         Route::get('batch-students/{id?}', 'batchesStudent')->name('batch.students');
+    });
+
+    Route::controller(TaskController::class)->group(function(){
+        Route::get('all-tasks', 'index')->name('index.task');
+        Route::post('store-task', 'store')->name('store.task');
+        Route::post('edit-task', 'edit')->name('edit.task');
+        Route::put('update-task/{id?}', 'update')->name('update.task');
+        Route::get('destroy-task/{task?}', 'destroy')->name('destroy.task');
     });
 
     Route::controller(BadgeController::class)->group(function(){
@@ -180,6 +196,13 @@ Route::group(['prefix' => 'instructor', 'middleware' => ['auth', 'instructor', '
         Route::get('lecture-batches/{batchId?}', 'batchLectures')->name('batch.lecture');
         Route::get('student-lecture-attendance/{lectureId?}', 'studentAttendance')->name('student.attendance');
         Route::post('mark-student-attendance/{lectureId?}', 'storeStudentAttendance')->name('store.student.attendance');
+    });
+
+
+    Route::controller(InstructorProfileController::class)->group(function(){
+        Route::put('update-password','updatePassword')->name('update.password');
+        Route::put('update-profile','updateProfile')->name('update.profile');
+        Route::get('profile','profile')->name('profile');
     });
 
 });

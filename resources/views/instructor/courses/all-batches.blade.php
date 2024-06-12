@@ -81,8 +81,8 @@
                                             <ul class="list-unstyled team-info m-t-20 m-b-20">
                                               
                                                 <li class="m-r-15"><img src="{{ asset('assets/images/xs/avatar4.jpg') }}" title="Avatar" alt="Avatar"></li>
-                                                <li class="m-r-15"> {{ $batch->batch->student->count() }} </li>
-                                                <li class="m-r-15"><small class="-muted"><strong>Students,</strong></small></li>
+                                                {{-- <li class="m-r-15"> {{ $batch->batch->student->count() }} </li>
+                                                <li class="m-r-15"><small class="-muted"><strong>Students,</strong></small></li> --}}
                                                 <li class="m-r-15"> {{ $batch->batch->lectures->count() }} </li>
                                                 <li class="m-r-15"><small class="-muted"><strong>Lectures</strong></small></li>
                                             </ul>

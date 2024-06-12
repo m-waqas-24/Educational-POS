@@ -45,7 +45,7 @@
                             <div class="row">
                                 <div class="col-md-12 mb-4">
                                     <label for="">Today Topics/Lesson</label>
-                                    <textarea name="topic" id="topic" class="form-control" cols="30" rows="3" placeholder="Enter Topic"></textarea>
+                                    <textarea name="topic" id="topic"  class="form-control" cols="30" rows="3" placeholder="Enter Topic"> {{ $lecture->lectureAttendances->first()->topic }} </textarea>
                                 </div>
                                 <div class="col-md-12 bg-primary mb-4">
                                     <h4 class="text-center text-white">All Students</h4>

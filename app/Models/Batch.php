@@ -25,4 +25,8 @@ class Batch extends Model
     }
 
 
+    public function taskReports(){
+        return $this->hasMany(TaskReport::class, 'batch_id', 'id');
+    }
+
 }

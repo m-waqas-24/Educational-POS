@@ -74,6 +74,12 @@
                                                 </div>
                                               </div>
                                               <div class="col-md-4">
+                                                <div class="form-group">
+                                                  <label class="form-label">Admission Opening Date</label>
+                                                  <input type="date" class="form-control" name="adm_opening_date" value="{{ $batch->adm_opening_date }}" placeholder="Email">
+                                                </div>
+                                              </div>
+                                              <div class="col-md-4">
                                                   <input type="checkbox" id="md_checkbox_1" class="chk-col-primary mt-5" name="is_open" value="1" {{ $batch->is_open ? 'checked' : '' }}  />
                                                   <label for="md_checkbox_1">Open</label>
                                               </div>

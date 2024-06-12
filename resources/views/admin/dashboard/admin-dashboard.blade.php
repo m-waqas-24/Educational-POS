@@ -12,10 +12,10 @@
         <div class="block-header">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-12">
-                    <h2>Dashbaord</h2>
+                    <h2>Dashboard</h2>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.html"><i class="fa fa-dashboard"></i></a></li>                            
-                        <li class="breadcrumb-item">Dashbaord</li>
+                        <li class="breadcrumb-item">Dashboard</li>
                         <li class="breadcrumb-item active">Reports</li>
                     </ul>
                 </div>

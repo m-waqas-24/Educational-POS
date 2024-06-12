@@ -34,6 +34,9 @@ class IndexController extends Controller
 
     public function batchLectures($batchId){
         $lectures = BatchLecture::where('batch_id', $batchId)->orderBy('date_time', 'asc')->get();
+        if($lectures->count() == 0){
+            return redirect()->back()->withErrors('Lecture not scheduled yet!.');
+        }
         $batch = Batch::find($batchId);
         $students = StudentCourse::where('batch_id', $batchId)->get();
 

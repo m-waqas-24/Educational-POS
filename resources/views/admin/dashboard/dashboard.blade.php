@@ -146,7 +146,7 @@
                 @endif
 
 
-                @if(getUserType() == 'csr' && Auth::user()->role_id == 1)
+                @if(getUserType() == 'csr' && Auth::user()->role_id == 1 && Auth::user()->permission == 1)
                 <div class="row clearfix row-deck">
                     <div class="col-md-12">
                         <div class="card">

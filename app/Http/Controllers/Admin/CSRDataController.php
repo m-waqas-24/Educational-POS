@@ -80,7 +80,7 @@ class CSRDataController extends Controller
         $qualifications = Qualification::all();
         $provinces = ProvinceCity::where('province_id', '!=' , null)->get();
         $courses = Course::all();
-        $batches = Batch::with('course')->get();
+        $batches = Batch::with('course')->where('is_open',1)->get();
         $modes = Bank::all();
         $sources = Source::all();
         $csrs = User::where(['type' => 'csr', 'status' => 1])->get();

@@ -214,6 +214,7 @@
                                     <li class="{{ request()->is('admin/distribution') ? ' active' : '' }}"><a href="{{ route('admin.distribute.index') }}" ><i class="fa fa-lock"></i>Distribute Data</a></li>
                                     <li class="{{ request()->is('admin/instructors') ? ' active' : '' }}"><a href="{{ route('admin.index.instructors') }}" ><i class="fa fa-list"></i>Instructors</a></li>
                                     <li class="{{ request()->is('admin/csr-reports') ? ' active' : '' }}"><a href="{{ route('admin.csr.reports') }}" ><i class="fa fa-list"></i>CSR Reports</a></li>
+                                    <li class="{{ request()->is('admin/all-tasks') ? ' active' : '' }}"><a href="{{ route('admin.index.task') }}" ><i class="fa fa-list"></i>Batch Tasks</a></li>
                                   
                                 @endif
                                 <li class="{{ request()->is('admin/csrs') ? ' active' : '' }}"><a href="{{ route('admin.csr.index') }}" ><i class="fa fa-user"></i>CSR Management</a></li>
@@ -244,7 +245,7 @@
                             <li class="{{ request()->is('admin/csr-students-data') ? ' active' : '' }}"><a href="{{ route('admin.csr-data.index') }}" ><i class="fa fa-user"></i>Students Data</a></li>
 
                             @endif
-                            @if((auth()->user()->type == 'csr' && Auth::user()->role_id == 1)  || getUserType() == 'superadmin' || getUserType() == 'admin')
+                            @if((auth()->user()->type == 'csr' && Auth::user()->role_id == 1 && Auth::user()->permission == 1)  || getUserType() == 'superadmin' || getUserType() == 'admin')
                             <li class="{{ request()->is('admin/followupdata-remarks') ? ' active' : '' }}"><a href="{{ route('admin.data.remarks') }}" ><i class="fa fa-lock"></i>QA Section</a></li>
                             @endif
                             <li class="{{ request()->is('admin/courses') ? ' active' : '' }}"><a href="{{ route('admin.index.course') }}" ><i class="fa fa-clipboard"></i>Courses</a></li>

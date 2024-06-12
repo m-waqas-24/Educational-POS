@@ -141,16 +141,16 @@
         <button type="button" class="btn-toggle-offcanvas"><i class="fa fa-arrow-left"></i></button>
         <div class="sidebar-scroll">
             <div class="user-account">
-                {{-- @if(auth()->user()->img)
+                @if(auth()->user()->img)
                     <img src="{{ asset('storage/'.auth()->user()->img) }}" class="rounded-circle user-photo" alt="User Profile Picture">
-                @else --}}
+                @else
                     <img src="{{ asset('assets/images/user.png') }}" class="rounded-circle user-photo" alt="User Profile Picture">
-                {{-- @endif --}}
+                @endif
                 <div class="dropdown">
                     <span>Welcome,</span>
                     <a href="javascript:void(0);" class="dropdown-toggle user-name" data-toggle="dropdown"><strong>{{ Auth::user()->name }}</strong></a>
                     <ul class="dropdown-menu dropdown-menu-right account">
-                        {{-- <li><a href="{{ route('admin.profile') }}"><i class="fa fa-user"></i>My Profile</a></li> --}}
+                        <li><a href="{{ route('instructor.profile') }}"><i class="fa fa-user"></i>My Profile</a></li>
                         <li class="divider"></li>
                         <li>
                             <a href="{{ route('logout') }}"

@@ -53,14 +53,20 @@
                                         @foreach ($batch->lectures->sortBy('date_time') as $batchLecture)
                                         <td>
                                             @php
-                                                $attendance = $student->attendance()->where('lecture_id', $batchLecture->id)->first();
-                                                if ($attendance) {
-                                                    $totalPresent++;
-                                                    echo $attendance->attendanceStatus->name;
-                                                } else {
-                                                    echo '-';
-                                                }
-                                            @endphp
+                                                        $attendance = $student->attendance()->where('lecture_id', $batchLecture->id)->first();
+                                                        if ($attendance) {
+                                                            if ($attendance->status == 1) {
+                                                                $totalPresent++;
+                                                                echo 'Present';
+                                                            } elseif ($attendance->status == 2) {
+                                                                echo 'Absent';
+                                                            } elseif ($attendance->status == 3) {
+                                                                echo 'Leave';
+                                                            }
+                                                        } else {
+                                                            echo '-';
+                                                        }
+                                                    @endphp
                                         </td>
                                         @endforeach
                                         <td>{{ $totalPresent }}</td>
