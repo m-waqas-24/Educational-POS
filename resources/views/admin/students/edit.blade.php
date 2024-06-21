@@ -113,45 +113,46 @@
 
                                 <fieldset>
                                     <div class="row">
-                                     <div class="col-md-3">
-                                         <div class="form-group">
-                                             <label class="form-label">Courses</label>
-                                             <select required class="form-select  form-control courseSelectt" name="course">
-                                                 <option value="">Select Course</option>
-                                                 @foreach($courses as $course)
-                                                     <option value="{{ $course->id }}" data-fee="{{ $course->fee }}" data-card-fee="{{ $course->card_fee }}" {{ $stuCourse->course_id == $course->id ? 'selected' : '' }}>{{ $course->name }}</option>
-                                                 @endforeach
-                                             </select>
-                                         </div>
-                                     </div>
-                                     <div class="col-md-2">
-                                         <div class="form-group">
-                                             <label class="form-label">Fee</label>
-                                             <input type="number" class="form-control courseFee" placeholder="Fees" readonly value="{{ $stuCourse->course->fee + $stuCourse->card - $stuCourse->discount }}">
-                                         </div>
-                                     </div>
-                                     <div class="col-md-2">
-                                         <div class="form-group">
-                                             <label class="form-label">Discount</label>
-                                             <input type="number" class="form-control discount" name="discount" min="0" value="{{ $stuCourse->discount }}" placeholder="Discount Fee (Optional)" required>
-                                         </div>
-                                     </div>
-                                     <div class="col-md-3">
-                                         <div class="form-group">
-                                             <label class="form-label">Batch</label>
-                                             <select required class="form-select form-control" name="batch_id">
-                                                @foreach($batches as $batch)
-                                                    <option value="{{ $batch->id }}" {{ $stuCourse->batch_id == $batch->id ? 'selected' : '' }}>{{ $batch->number }}-{{ $batch->course->name }}</option>
-                                                @endforeach
-                                             </select>
-                                         </div>
-                                     </div>
-                                     <div class="col-md-2">
-                                         <div class="form-group">
-                                             <label class="form-label">Student Card Fee</label>
-                                             <input type="number" readonly class="form-control studentCardFee" name="card" value="0" min="0" required>
-                                         </div>
-                                     </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="form-label">Courses</label>
+                                                <select required class="form-select  form-control courseSelectt" name="course">
+                                                    <option value="">Select Course</option>
+                                                    @foreach($courses as $course)
+                                                        <option value="{{ $course->id }}" {{ $stuCourse->course_id == $course->id ? 'selected' : '' }}  data-fee="{{ $course->fee }}" data-card-fee="{{ $course->card_fee }}">{{ $course->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        {{-- <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="form-label">Fee</label>
+                                                <input type="number" class="form-control courseFee" placeholder="Fees" readonly>
+                                            </div>
+                                        </div> --}}
+                                        {{-- <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="form-label">Discount</label>
+                                                <input type="number" class="form-control discount" name="discount[]" min="0" value="0" placeholder="Discount Fee (Optional)" required>
+                                            </div>
+                                        </div> --}}
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="form-label">Batch</label>
+                                                <select required class="form-select form-control" name="batch_id">
+                                                    <option value="">Select Batch</option>
+                                                    @foreach($batches as $batch)
+                                                        <option value="{{ $batch->id }}" {{ $stuCourse->batch_id == $batch->id ? 'selected' : '' }} >{{ $batch->number }} - {{ $batch->course->name }} </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        {{-- <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="form-label">Student Card Fee</label>
+                                                <input type="number" readonly class="form-control studentCardFee" name="card[]" value="0" min="0" required>
+                                            </div>
+                                        </div> --}}
                                      
  
                                     </div>
@@ -210,32 +211,31 @@
             }
         
             $(document).on('change', '.courseSelectt', function () {
-                var courseId = $(this).val();
-                var batchSelect = $(this).closest('.row').find('[name="batch_id[]"]'); // Select batch within the same row
+        var courseId = $(this).val();
+        var batchSelect = $(this).closest('.row').find('[name="batch_id[]"]'); // Select batch within the same row
 
-                var batches = {!! json_encode($batches) !!};
+        var batches = {!! json_encode($batches) !!};
 
-                var filteredBatches = batches.filter(function (batch) {
-                    return batch.course_id == courseId;
-                });
+        var filteredBatches = batches.filter(function (batch) {
+            return batch.course_id == courseId;
+        });
 
-                batchSelect.empty();
-                if (filteredBatches.length > 0) {
-                    $.each(filteredBatches, function (index, batch) {
-                        batchSelect.append($('<option>', {
-                            value: batch.id,
-                            text: batch.number + ' (' + batch.course.name + ')'
-                        }));
-                    });
-                    
-                } else {
-                    batchSelect.append($('<option>', {
-                        value: '',
-                        text: 'No Batches Available'
-                    }));
-                }
-                
+        batchSelect.empty();
+        if (filteredBatches.length > 0) {
+            $.each(filteredBatches, function (index, batch) {
+                var batchName = batch.course && batch.course.name ? batch.course.name : 'Unknown';
+                batchSelect.append($('<option>', {
+                    value: batch.id,
+                    text: batch.number + ' (' + batchName + ')'
+                }));
             });
+        } else {
+            batchSelect.append($('<option>', {
+                value: '',
+                text: 'No Batches Available'
+            }));
+        }
+    });
     
 
             // Function to handle course selection change
@@ -298,115 +298,115 @@
                 
             });
 
-            // Event handler for course selection change
-$(document).on("change", ".courseSelect", function() {
-    var selectedCourse = $(this).find(":selected");
-    var fee = parseFloat(selectedCourse.data("fee")) || 0;
-    var row = $(this).closest(".row");
-    var courseFeeInput = row.find(".courseFee");
-    var discount = parseFloat(row.find(".discountt").val()) || 0;
-    var updatedFee = fee - discount;
-    courseFeeInput.val(updatedFee.toFixed(2));
-});
-
-// Event handler for discount change
-$(document).on("keyup", ".discountt", function() {
-    var row = $(this).closest(".row");
-    var selectedCourse = row.find(".courseSelect :selected");
-    var fee = parseFloat(selectedCourse.data("fee")) || 0;
-    var courseFeeInput = row.find(".courseFee");
-    var discount = parseFloat($(this).val()) || 0;
-    var updatedFee = fee - discount;
-    courseFeeInput.val(updatedFee.toFixed(2));
-});
-
-function appendCourseSelectRow() {
-    var newRow = '<hr>' +
-        '<div class="row mt-2">' +
-        '<div class="col-md-3">' +
-        '<div class="form-group">' +
-        '<label class="form-label">Courses</label>' +
-        '<select class="form-select form-control courseSelect" name="courses[]">' +
-        '<option value="">Select Course</option> @foreach($courses as $course) <option value="{{ $course->id }}" data-fee="{{ $course->fee }}">{{ $course->name }}</option> @endforeach' +
-        '</select>' +
-        '</div>' +
-        '</div>' +
-        '<div class="col-md-3">' +
-        '<div class="form-group">' +
-        '<label class="form-label">Fee</label>' +
-        '<input type="number" class="form-control courseFee" name="course_fee[]" placeholder="Fees" readonly>' +
-        '</div>' +
-        '</div>' +
-        '<div class="col-md-3">' +
-        '<div class="form-group">' +
-        '<label class="form-label">Discount</label>' +
-        '<input type="number" class="form-control discountt" name="discount[]"  min="0" value="0" placeholder="Discount">' +
-        '</div>' +
-        '</div>' +
-        '<div class="col-md-3">' +
-        '<div class="form-group">' +
-        '<label class="form-label">Batch</label>' +
-        '<select required class="form-select form-control batchSelect" name="batch_id[]">' +
-        '</select>' +
-        '</div>' +
-        '</div>' +
-        '<div class="col-md-3">' +
-        '<div class="form-group">' +
-        '<label class="form-label">Payment Date</label>' +
-        '<input type="date" class="form-control" name="payment_date_first[]" value="{{ \Carbon\Carbon::today()->toDateString() }}" required>' +
-        '</div>' +
-        '</div>' +
-        '<div class="col-md-9">' +
-        '<div class="row">' +
-        '<div class="col-md-12">' +
-        '<label class="form-label">Payment Details</label>' +
-        '<div class="input-group mb-3">' +
-        '<select required class="form-select form-control" name="mode_first[]" id="inputGroupSelect02">' +
-        '<option value="">Select Payment Mode</option> @foreach($modes as $mode) <option value="{{ $mode->id }}" >{{ $mode->name }}</option> @endforeach' +
-        '</select>' +
-        '<input required type="number" class="form-control" name="payment_first[]" min="0" placeholder="Enter Received Amount">' +
-        '<input type="file" name="first_receipt[]" class="receiptInput" style="display: none;">' +
-        '<button type="button" class="btn btn-warning uploadButton">Please Upload receipt!</button>' +
-        '</div>' +
-        '</div>' +
-        '<div class="col-md-12">' +
-        '<label class="form-label">Payment Details</label>' +
-        '<div class="input-group mb-3">' +
-        '<select class="form-select form-control" name="mode_second[]" id="inputGroupSelect02">' +
-        '<option value="">Select Payment Mode</option> @foreach($modes as $mode) <option value="{{ $mode->id }}" >{{ $mode->name }} </option> @endforeach' +
-        '</select>' +
-        '<input type="number" class="form-control" name="payment_second[]" min="0" placeholder="Enter Received Amount">' +
-        '<input type="file" name="second_receipt[]" class="receiptInput" style="display: none;">' +
-        '<button type="button" class="btn btn-warning uploadButton">Please Upload receipt!</button>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '<div class="col-md-2">' +
-        '<button type="button" class="btn btn-danger btn-sm deleteRowBtn">' +
-        '<i class="fa fa-trash"></i>' +
-        '</button>' +
-        '</div>' +
-        '</div>';
-
-    $("#courseContainer").append(newRow);
-
-    var addedCourseRow = $("#courseContainer .row").last();
-    var courseSelect = addedCourseRow.find(".courseSelect");
-    var batchSelect = addedCourseRow.find(".batchSelect");
-
-    courseSelect.on("change", handleCourseSelecttChange);
-    $(".deleteRowBtn").click(function () {
-        $(this).closest(".row").remove();
-    });
-}
-
-$("#addCourseBtn").click(function () {
-    appendCourseSelectRow();
-});
-
-
+        // Event handler for course selection change
+        $(document).on("change", ".courseSelect", function() {
+            var selectedCourse = $(this).find(":selected");
+            var fee = parseFloat(selectedCourse.data("fee")) || 0;
+            var row = $(this).closest(".row");
+            var courseFeeInput = row.find(".courseFee");
+            var discount = parseFloat(row.find(".discountt").val()) || 0;
+            var updatedFee = fee - discount;
+            courseFeeInput.val(updatedFee.toFixed(2));
         });
+
+        // Event handler for discount change
+        $(document).on("keyup", ".discountt", function() {
+            var row = $(this).closest(".row");
+            var selectedCourse = row.find(".courseSelect :selected");
+            var fee = parseFloat(selectedCourse.data("fee")) || 0;
+            var courseFeeInput = row.find(".courseFee");
+            var discount = parseFloat($(this).val()) || 0;
+            var updatedFee = fee - discount;
+            courseFeeInput.val(updatedFee.toFixed(2));
+        });
+
+        function appendCourseSelectRow() {
+            var newRow = '<hr>' +
+                '<div class="row mt-2">' +
+                '<div class="col-md-3">' +
+                '<div class="form-group">' +
+                '<label class="form-label">Courses</label>' +
+                '<select class="form-select form-control courseSelect" name="courses[]">' +
+                '<option value="">Select Course</option> @foreach($courses as $course) <option value="{{ $course->id }}" data-fee="{{ $course->fee }}">{{ $course->name }}</option> @endforeach' +
+                '</select>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-3">' +
+                '<div class="form-group">' +
+                '<label class="form-label">Fee</label>' +
+                '<input type="number" class="form-control courseFee" name="course_fee[]" placeholder="Fees" readonly>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-3">' +
+                '<div class="form-group">' +
+                '<label class="form-label">Discount</label>' +
+                '<input type="number" class="form-control discountt" name="discount[]"  min="0" value="0" placeholder="Discount">' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-3">' +
+                '<div class="form-group">' +
+                '<label class="form-label">Batch</label>' +
+                '<select required class="form-select form-control batchSelect" name="batch_id[]">' +
+                '</select>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-3">' +
+                '<div class="form-group">' +
+                '<label class="form-label">Payment Date</label>' +
+                '<input type="date" class="form-control" name="payment_date_first[]" value="{{ \Carbon\Carbon::today()->toDateString() }}" required>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-9">' +
+                '<div class="row">' +
+                '<div class="col-md-12">' +
+                '<label class="form-label">Payment Details</label>' +
+                '<div class="input-group mb-3">' +
+                '<select required class="form-select form-control" name="mode_first[]" id="inputGroupSelect02">' +
+                '<option value="">Select Payment Mode</option> @foreach($modes as $mode) <option value="{{ $mode->id }}" >{{ $mode->name }}</option> @endforeach' +
+                '</select>' +
+                '<input required type="number" class="form-control" name="payment_first[]" min="0" placeholder="Enter Received Amount">' +
+                '<input type="file" name="first_receipt[]" class="receiptInput" style="display: none;">' +
+                '<button type="button" class="btn btn-warning uploadButton">Please Upload receipt!</button>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-12">' +
+                '<label class="form-label">Payment Details</label>' +
+                '<div class="input-group mb-3">' +
+                '<select class="form-select form-control" name="mode_second[]" id="inputGroupSelect02">' +
+                '<option value="">Select Payment Mode</option> @foreach($modes as $mode) <option value="{{ $mode->id }}" >{{ $mode->name }} </option> @endforeach' +
+                '</select>' +
+                '<input type="number" class="form-control" name="payment_second[]" min="0" placeholder="Enter Received Amount">' +
+                '<input type="file" name="second_receipt[]" class="receiptInput" style="display: none;">' +
+                '<button type="button" class="btn btn-warning uploadButton">Please Upload receipt!</button>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                '<button type="button" class="btn btn-danger btn-sm deleteRowBtn">' +
+                '<i class="fa fa-trash"></i>' +
+                '</button>' +
+                '</div>' +
+                '</div>';
+
+            $("#courseContainer").append(newRow);
+
+            var addedCourseRow = $("#courseContainer .row").last();
+            var courseSelect = addedCourseRow.find(".courseSelect");
+            var batchSelect = addedCourseRow.find(".batchSelect");
+
+            courseSelect.on("change", handleCourseSelecttChange);
+            $(".deleteRowBtn").click(function () {
+                $(this).closest(".row").remove();
+            });
+        }
+
+        $("#addCourseBtn").click(function () {
+            appendCourseSelectRow();
+        });
+
+
+    });
         
     </script>
     

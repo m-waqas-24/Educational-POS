@@ -17,6 +17,23 @@ if(!function_exists('formatPrice')){
     function getUserType(){
         return auth()->user()->type;
     }
+
+    function sumConfirmedPayments($studentCourses)
+    {
+        $totalPayments = 0;
+
+        foreach ($studentCourses as $course) {
+            $totalPayments += $course->coursePayments()
+                ->where('is_confirmed_first', true)
+                ->sum('payment_first');
+
+            $totalPayments += $course->coursePayments()
+                ->where('is_confirmed_second', true)
+                ->sum('payment_second');
+        }
+
+        return $totalPayments;
+    }
     
     function uploadFile($request, $fileInputName, $targetDirectory)
     {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Admin\StudentCourseHistory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -18,6 +19,10 @@ class StudentCourse extends Model
 
     public function course(){
         return $this->belongsTo(Course::class, 'course_id', 'id');
+    }
+ 
+    public function courseHistory(){
+        return $this->hasMany(StudentCourseHistory::class , 'student_course_id', 'id');
     }
     
     public function switchCourse(){

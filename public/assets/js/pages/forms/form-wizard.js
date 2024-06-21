@@ -24,6 +24,33 @@ $(function () {
             setButtonWavesEffect(event);
         }
     });
+    $('#wizard_vertical2').steps({
+        headerTag: 'h2',
+        bodyTag: 'section',
+        transitionEffect: 'slideLeft',
+        stepsOrientation: 'vertical',
+        onInit: function (event, currentIndex) {
+            setButtonWavesEffect(event);
+        },
+        onStepChanged: function (event, currentIndex, priorIndex) {
+            setButtonWavesEffect(event);
+        }
+    });
+    $('.wizard_vertical3').each(function() {
+        $(this).steps({
+            headerTag: 'h2',
+            bodyTag: 'section',
+            transitionEffect: 'slideLeft',
+            stepsOrientation: 'vertical',
+            onInit: function (event, currentIndex) {
+                setButtonWavesEffect(event);
+            },
+            onStepChanged: function (event, currentIndex, priorIndex) {
+                setButtonWavesEffect(event);
+            }
+        });
+    });
+    
 
     //Advanced form with validation
     var form = $('#wizard_with_validation').show();

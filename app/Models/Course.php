@@ -10,4 +10,9 @@ class Course extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function batches(){
+        return $this->hasMany(Batch::class, 'course_id', 'id');
+    }
+
 }

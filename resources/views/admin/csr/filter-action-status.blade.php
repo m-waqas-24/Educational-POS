@@ -6,11 +6,11 @@
         <div class="block-header">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-12">
-                    <h2> {{ $action->name }} Students List</h2>
+                    <h2> {{ $action ? $action->name : 'Today' }} Students List</h2>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="fa fa-dashboard"></i></a></li>                            
                         <li class="breadcrumb-item">Dashboard</li>
-                        <li class="breadcrumb-item active">{{ $action->name }} Students</li>
+                        <li class="breadcrumb-item active">{{ $action ? $action->name : 'Today' }} Students</li>
                     </ul>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-12">
@@ -26,6 +26,7 @@
             </div>
         </div>
 
+        @if($action)
         <div class="card">
             <div class="body">
                 <form action="{{ route('admin.filter.followup', $action->id) }}" method="GET" enctype="multipart/form-data">
@@ -47,6 +48,7 @@
                 </form>
             </div>
         </div>
+        @endif
         
         <div class="row clearfix">
             <div class="col-lg-12">
@@ -56,6 +58,7 @@
                             <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                                 <thead>
                                     <tr>
+                                        <th class="text-uppercase">CSR</th>
                                         <th class="text-uppercase">Student Name</th>
                                         <th class="text-uppercase">Email</th>
                                         <th class="text-uppercase">Phone</th>
@@ -69,6 +72,7 @@
                                 <tbody>
                                     @foreach ($students as $student)
                                     <tr>
+                                        <td>{{ $student->csr->name }}</td>
                                         <td>{{ $student->student->name }}</td>
                                         <td>{{ $student->student->email }}</td>
                                         <td><a href="https://wa.me/{{ $student->student->phone }}" target="_blank">{{ $student->student->phone }}</a></td>

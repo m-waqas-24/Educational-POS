@@ -358,7 +358,7 @@
                                                         @foreach($discontinuedStudentCourses as $index => $course)
                                                         <tr style="{{ $course->statusStyle }}">
                                                             <td>{{ $course->student->name }}</td>
-                                                            <td>{{ $course->student->user->email }}</td>
+                                                            <td>{{ $course->student->user->email }}</td>    
                                                             <td>{{ \Carbon\Carbon::parse($course->getLatestPaymentDate())->diffForHumans() }}</td>
                                                             <td>
                                                                 @if($course->status_id == 1)
@@ -677,7 +677,7 @@
                                                     <div class="icon text-info"><i class="fa fa-desktop"></i> </div>
                                                     <div class="content">
                                                         <div class="text">Workshops</div>
-                                                        {{-- <h5 class="number">{{ count(getWorkshopsByBatchId($batch->id)) }}</h5> --}}
+                                                        <h5 class="number">{{ count($workshops) }}</h5>
                                                     </div>
                                                 </div>
                                             </div>
@@ -699,7 +699,7 @@
                                                 <div class="icon text-danger"><i class="fa fa-ban"></i> </div>
                                                 <div class="content">
                                                     <div class="text">Left Student</div>
-                                                    <h5 class="number"> {{ $studentCourses->where('is_continued',0)->count() }} </h5>
+                                                    <h5 class="number"> {{ $discontinuedStudentCourses->count() }} </h5>
                                                 </div>
                                             </div>
                                         </div>
@@ -726,7 +726,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-12">
+                                    {{-- <div class="col-md-12">
                                         <div class="card">
                                             <div class="header">
                                                 <h2>Students Enroll By Csr </h2>
@@ -735,7 +735,7 @@
                                                 <div id="Google-Analytics-Dashboard" style="height: 230px"></div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                     @if(getUserType() == 'superadmin')
                                     <div class="col-lg-6 col-md-12">
                                         <div class="card">
@@ -847,31 +847,34 @@
                                                     <div class="card-header bg-primary">
                                                         <h5 class="text-white text-center">Registered Students</h5>
                                                     </div>
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-bordered table-hover ">    
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th class="text-uppercase">Student Name</th>
+                                                                        <th class="text-uppercase">Email</th>
+                                                                        <th class="text-uppercase">Phone</th>
+                                                                        <th class="text-uppercase">City</th>
+                                                                        <th class="text-uppercase">CNIC</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody >
+                                                                    @foreach ($work->workshop_students as $index => $stu)
+                                                                    <tr>
+                                                                        <td>{{ $stu->name }}</td>
+                                                                        <td>{{ $stu->email }}</td>
+                                                                        <td>{{ $stu->number }}</td>
+                                                                        <td>{{ $stu->city }}</td>
+                                                                        <td>{{ $stu->cnic }}</td>
+                                                                    </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered table-hover table-custom">
-                                                        <thead>
-                                                            <tr>
-                                                                <th class="text-uppercase">Student Name</th>
-                                                                <th class="text-uppercase">Email</th>
-                                                                <th class="text-uppercase">Phone</th>
-                                                                <th class="text-uppercase">City</th>
-                                                                <th class="text-uppercase">CNIC</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody style="height: 300px; overflow-y: auto">
-                                                            @foreach ($work->workshop_students as $index => $stu)
-                                                            <tr>
-                                                                <td>{{ $stu->name }}</td>
-                                                                <td>{{ $stu->email }}</td>
-                                                                <td>{{ $stu->number }}</td>
-                                                                <td>{{ $stu->city }}</td>
-                                                                <td>{{ $stu->cnic }}</td>
-                                                            </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                               
                                             </div>
                                         </div>
                                     </section>
@@ -1133,6 +1136,7 @@
         });
     });
 });
+
 
 </script>
     

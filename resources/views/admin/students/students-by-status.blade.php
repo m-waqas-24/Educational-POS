@@ -6,7 +6,7 @@
         <div class="block-header">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-12">
-                    <h2> @if($status == 1) Paid @else Partial @endif Students List</h2>
+                    <h2> {{ $batch->course->name }} /  {{ $batch->number }} - @if($status == 1) Paid @elseif($status == 2) Partial @elseif($status == null) All @elseif($status == 3) Discontinued @endif  Students List</h2>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="fa fa-dashboard"></i></a></li>                            
                         <li class="breadcrumb-item">Dashboard</li>
@@ -25,58 +25,6 @@
             </div>
         </div>
 
-        <div class="card">
-            <div class="body">
-                <form action="{{ route('admin.filter.students') }}" method="GET" enctype="multipart/form-data">
-                    @csrf
-                    <div class="row clearfix">
-                        <input type="hidden" name="status" value="{{ $status }}">
-                        <div class="@if(getUserType() == 'admin' || getUserType() == 'superadmin' ) col-md-4 @else col-md-6 @endif">
-                            <label>Range</label>  
-                            <div class="input-daterange input-group" data-provide="datepicker">
-                                <input type="text" value="{{ $from ?? '' }}" class="input-sm form-control" name="from" autocomplete="off">
-                                <span class="input-group-addon mx-2">To</span>
-                                <input type="text" value="{{ $to ?? '' }}" class="input-sm form-control" name="to" autocomplete="off">
-                            </div>
-                        </div>
-                        @if(getUserType() == 'admin' || getUserType() == 'superadmin')
-                        <div class="col-md-3">
-                            <label>Select CSR</label>
-                            <select name="csr" class="form-control form-select" id="">
-                                <option value="">Select CSR</option>
-                                @foreach ($csrs as $csr)
-                                    <option value="{{ $csr->id }}" @if($s_csr)  {{ $csr->id == $s_csr ? 'selected' : '' }} @endif>{{ $csr->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        @endif
-                        @if(getUserType() == 'admin' || getUserType() == 'superadmin' || (getUserType() == 'csr' && Auth::user()->role_id == 1))
-                        <div class="col-md-2">
-                            <label>Select Course</label>
-                            <select name="course" class="form-control form-select" id="">
-                                <option value="">Select Course</option>
-                                @foreach ($courses as $course)
-                                    <option value="{{ $course->id }}" >{{ $course->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label>Select Batch</label>
-                            <select name="batch" class="form-control form-select" id="">
-                                <option value="">Batches</option>
-                                @foreach ($batches as $batch)
-                                    <option value="{{ $batch->id }}">{{ $batch->number }} ({{ $batch->course->name }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        @endif
-                        <div class="col-md-1 mt-4">
-                            <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-search mr-2"></i> Search</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
         
         <div class="row clearfix">
 

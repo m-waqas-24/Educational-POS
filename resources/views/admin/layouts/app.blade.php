@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="{{ asset('assets/vendor/jquery-datatable/fixedeader/dataTables.fixedheader.bootstrap4.min.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/vendor/sweetalert/sweetalert.css') }}"/>
 <link rel="stylesheet" href="{{ asset('assets/vendor/toastr/toastr.min.css') }}">   
+<link rel="stylesheet" href="{{ asset('assets/vendor/fullcalendar/fullcalendar.min.css') }}">
 
 
 <!-- MAIN Project CSS file -->
@@ -409,6 +410,9 @@
 <script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
 <script src="{{ asset('assets/vendor/bootstrap-tagsinput/bootstrap-tagsinput.js') }}"></script>  
 <script src="{{ asset('assets/vendor/nouislider/nouislider.js') }}"></script>  
+<script src="{{ asset('assets/bundles/fullcalendarscripts.bundle.js') }}"></script><!--/ calender javascripts --> 
+<script src="{{ asset('assets/vendor/fullcalendar/fullcalendar.js') }}"></script><!--/ calender javascripts --> 
+<script src="{{ asset('assets/js/pages/calendar.js') }}"></script>
 
     
 

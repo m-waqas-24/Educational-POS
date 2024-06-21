@@ -92,7 +92,7 @@
 
                                             @endif
                                         </td>
-                                        <td> <span class="badge badge-primary">{{ $student->action_status_id ? $student->statusAction->name : 'Uncalled' }}</span> </td>
+                                        <td> <span class="badge  {{ $student->action_status_id ? 'badge-primary' : 'badge-danger' }}">{{ $student->action_status_id ? $student->statusAction->name : 'Uncalled' }}</span> </td>
                                        
                                     </tr>
                                     @endforeach

@@ -8362,7 +8362,7 @@ ul.choose-skin li div,
 }
 
 .wizard>.steps .done a {
-    background: var(--primary-color);
+    /* background: var(--primary-color); */
     opacity: 0.7
 }
 

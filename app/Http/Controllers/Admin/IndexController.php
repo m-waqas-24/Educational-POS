@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\CsrActionStatus;
 use App\Models\Admin\CsrStudent;
+use App\Models\Course;
 use App\Models\DataDistributionRecord;
 use App\Models\ImportStudent;
 use App\Models\Student;
@@ -329,26 +330,26 @@ class IndexController extends Controller
         ->get();
     
 
-    $csrPartialEnrollData = [];
-foreach ($monthlyPartialEnrollStudentCountsByCSR as $data) {
-    $csrName = $data->csr_name;
-    $month = $data->month;
-    $year = $currentYear;
+        $csrPartialEnrollData = [];
+        foreach ($monthlyPartialEnrollStudentCountsByCSR as $data) {
+            $csrName = $data->csr_name;
+            $month = $data->month;
+            $year = $currentYear;
 
-    if (!isset($csrPartialEnrollData[$csrName])) {
-        $csrPartialEnrollData[$csrName] = [];
-    }
+            if (!isset($csrPartialEnrollData[$csrName])) {
+                $csrPartialEnrollData[$csrName] = [];
+            }
 
-    if (!isset($csrPartialEnrollData[$csrName][$year])) {
-        $csrPartialEnrollData[$csrName][$year] = array_fill(1, 12, 0);
-    }
+            if (!isset($csrPartialEnrollData[$csrName][$year])) {
+                $csrPartialEnrollData[$csrName][$year] = array_fill(1, 12, 0);
+            }
 
-    $csrPartialEnrollData[$csrName][$year][$month] = $data->count;
-}
-// dd($csrPartialEnrollData);
+            $csrPartialEnrollData[$csrName][$year][$month] = $data->count;
+        }
 
+        $courses = Course::all();
 
-        return view('admin.dashboard.admin-dashboard', compact( 'csrs', 'actionStatus','dataDistributedCountsByMonth', 'dueDataCountsByMonth', 'enrollStudentCountsByMonth', 'csrData', 'csrEnrollData', 'csrPartialEnrollData'));  
+        return view('admin.dashboard.admin-dashboard', compact( 'csrs', 'courses','actionStatus','dataDistributedCountsByMonth', 'dueDataCountsByMonth', 'enrollStudentCountsByMonth', 'csrData', 'csrEnrollData', 'csrPartialEnrollData'));  
         }
 
     }

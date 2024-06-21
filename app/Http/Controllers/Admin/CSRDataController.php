@@ -88,17 +88,33 @@ class CSRDataController extends Controller
         return view('admin.csr.enroll-student', compact('student', 'csrs', 'qualifications', 'sources', 'provinces', 'courses', 'batches', 'modes'));
     }
 
-    public function filterActionStatusesTodayData($id,$csr){
+    public function filterActionStatusesTodayData(Request $request){
         $user = Auth::user();
-        $students = CsrStudent::where([
-            'csr_id' => $csr,
-            'action_status_id' => $id
-        ])->whereDate('called_at', Carbon::today()->toDateString())->get();
-        $action = CsrActionStatus::find($id);
-
+        $id = $request->id;
+        $csr = $request->csr;
+    
+        // Check if $id is null
+        if ($id === null) {
+            // Get all students for the given CSR for today
+            $students = CsrStudent::where('csr_id', $csr)
+                ->whereDate('called_at', Carbon::today()->toDateString())
+                ->get();
+            // Set action to null as there is no specific action status
+            $action = null;
+        } else {
+            // Get students with specific action status for today
+            $students = CsrStudent::where([
+                'csr_id' => $csr,
+                'action_status_id' => $id
+            ])->whereDate('called_at', Carbon::today()->toDateString())
+            ->get();
+            // Get the specific action status
+            $action = CsrActionStatus::find($id);
+        }
+    
         return view('admin.csr.filter-action-status', compact('students', 'action', 'csr'));
     }
-
+    
 
     public function getFollowUpData(){
         $students = CsrStudent::where('remarks', '!=', null)->get();

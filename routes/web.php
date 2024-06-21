@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ImportDataController;
 use App\Http\Controllers\Admin\IndexController;
 use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\FollowUpHistoryController;
 use App\Http\Controllers\Instructor\IndexController as InstructorIndexController;
 use App\Http\Controllers\Instructor\ProfileController as InstructorProfileController;
 use App\Http\Controllers\OrientationController;
@@ -59,6 +60,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         // Route::get('-dashboard', 'superAdminDashboard')->name('superadmin.dashboard');
     });
 
+    Route::controller(FollowUpHistoryController::class)->group(function(){
+        Route::post('student-Followup/{id?}', 'storeFollowup')->name('student.followup');
+    });
+
     Route::controller(ImportDataController::class)->group(function(){
         Route::get('imported-data', 'index')->name('index.import-data');
         Route::post('import-data', 'importData')->name('store.import-data');
@@ -100,7 +105,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::put('csr-update-student/{id?}', 'updateStudent')->name('csr.update.student');
         Route::get('enroll-form/{id?}', 'enrollForm')->name('csr.enroll-student');
         Route::get('filter-status/{id?}', 'filterActionStatuses')->name('filter.action.status');
-        Route::get('filter-status-today/{id?}/{csr?}', 'filterActionStatusesTodayData')->name('filter.action.status.today');
+        Route::get('filter-status-today', 'filterActionStatusesTodayData')->name('filter.action.status.today');
         Route::get('filter-student', 'filterStudent')->name('filter.student');
         Route::get('filter-student-courses/{id?}', 'showStudentCourses')->name('filter.student.courses');
         Route::get('filter-followup/{id?}', 'filterFollowup')->name('filter.followup');
@@ -165,6 +170,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::post('edit-student-payment', 'editPayment')->name('edit.student.payment');
         Route::put('update-student-payment/{id?}', 'updateStudentPayment')->name('update.student.payment');
         Route::post('add-returns', 'addReturns')->name('add.returns');
+        Route::get('students-by-status', 'studentsByStatus')->name('students.by.status');
     });
 
     Route::controller(StudentCourseController::class)->group(function(){

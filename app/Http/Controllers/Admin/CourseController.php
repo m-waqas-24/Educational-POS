@@ -86,8 +86,8 @@ class CourseController extends Controller
             ->toArray();
             // dd($csrStudentCounts);
             $batch = Batch::find($id);
-            // $workshops = getWorkshopsByBatchId($id);
-            $workshops = null;
+            $workshops = getWorkshopsByBatchId($id);
+            // $workshops = null;
 
             return view('admin.course.batches-students', compact('studentCourses', 'discontinuedStudentCourses', 'batch', 'totalRecovered', 'csrStudentCounts', 'totalFees', 'workshops'));
         }else if(getUserType() == 'csr'){
@@ -95,10 +95,13 @@ class CourseController extends Controller
             $studentCourses = StudentCourse::where('batch_id',$id)->whereHas('student', function ($query) use ($userId) {
                 $query->where('csr_id', $userId);
             })->get();
+            $discontinuedStudentCourses = StudentCourse::where(['batch_id' => $id, 'is_continued' => 0])->whereHas('student', function ($query) use ($userId) {
+                $query->where('csr_id', $userId);
+            })->get();
             $modes = Bank::all();
             $batch = Batch::find($id);
 
-            return view('admin.course.batches-students', compact('studentCourses', 'batch', 'modes'));
+            return view('admin.course.batches-students', compact('studentCourses', 'discontinuedStudentCourses', 'batch', 'modes'));
         }
     }
 
