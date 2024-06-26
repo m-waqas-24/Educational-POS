@@ -1,4 +1,4 @@
-@extends('instructor.layouts.app')
+@extends('admin.layouts.app')
 @section('content')
 @php
     $lectureDate = \Carbon\Carbon::parse($lecture->date_time);

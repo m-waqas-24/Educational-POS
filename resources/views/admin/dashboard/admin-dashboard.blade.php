@@ -46,10 +46,32 @@
                 </div>                
             </div>
             <div class="col-md-12">
+
                 <div class="card">
+                    <div class="body">
+                        <form action="{{ route('admin.dashboard') }}" method="GET" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row clearfix">
+                                <div class="col-md-8">
+                                    <label>Filter CSR Activity</label>  
+                                    <div class="input-daterange input-group" data-provide="datepicker">
+                                        <input type="text" value="" class="input-sm form-control" name="from" autocomplete="off">
+                                        <span class="input-group-addon mx-2">To</span>
+                                        <input type="text"  value="" class="input-sm form-control" name="to" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mt-4">
+                                    <button type="submit" class="btn btn-primary "><i class="fa fa-search mr-2"></i> FILTER</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                     <div class="header">
-                        <h2>CSR TODAY ACTIVITY
-                        </h2>
+                        @if($from && $to)
+                            <h2>CSR ACTIVITY from {{ $from }} to {{ $to }} </h2>
+                        @else
+                            <h2>CSR TODAY ACTIVITY  </h2>
+                        @endif
                     </div>
                     <div class="body">
                         <div id="wizard_vertical">
@@ -62,13 +84,18 @@
                                     <div class="row clearfix row-deck">
                                         <div class="col-md-4">
                                             <div class="card top_widget">
-                                                <a href="{{ route('admin.filter.action.status.today',  ['id' => null, 'csr' => $csr->id]) }}">
+                                                <a href="{{ route('admin.filter.action.status.today',  ['id' => null, 'csr' => $csr->id, 'from' => $from, 'to' => $to]) }}">
                                                     <div class="body">
                                                         <div class="icon"><i class="mdi mdi-cellphone"></i></div>
                                                         <div class="content">
-                                                            <div class="text mb-2 text-uppercase">Today Calls</div>
-                                                            <h4 class="number mb-0">{{ \App\Models\Admin\CsrStudent::where('csr_id', $csr->id)->whereDate('called_at', \Carbon\Carbon::today()->toDateString())->count() }}</h4>
-                                                            <small class="text-muted">Analytics for Today</small>
+                                                            <div class="text mb-2 text-uppercase">@if($from && $to) Total @else Today @endif Calls</div>
+                                                            @if(!$from && !$to)
+                                                                <h4 class="number mb-0">{{ \App\Models\Admin\CsrStudent::where('csr_id', $csr->id)->whereDate('called_at', \Carbon\Carbon::today()->toDateString())->count() }}</h4>
+                                                            @else
+                                                                <h4 class="number mb-0">{{ \App\Models\Admin\CsrStudent::where('csr_id', $csr->id)->where('called_at', '>=', \Carbon\Carbon::parse($from)->startOfDay())
+                                                                                            ->where('called_at', '<=', \Carbon\Carbon::parse($to)->endOfDay())->count() }}</h4>
+                                                            @endif
+                                                            <small class="text-muted">Analytics for Today</small>   
                                                         </div>
                                                     </div>
                                                 </a>
@@ -78,12 +105,23 @@
                                         @foreach ($actionStatus as $status)
                                             <div class="col-md-4">
                                                 <div class="card top_widget">
-                                                    <a href="{{ route('admin.filter.action.status.today',  ['id' => $status->id, 'csr' => $csr->id]) }}">
+                                                    <a href="{{ route('admin.filter.action.status.today',  ['id' => $status->id, 'csr' => $csr->id, 'from' => $from, 'to' => $to]) }}">
                                                         <div class="body">
                                                             <div class="icon"><i class="{{ $status->icon }}"></i></div>
                                                             <div class="content">
                                                                 <div class="text mb-2 text-uppercase">{{ $status->name }}</div>
+                                                                @if(!$from && !$to)
                                                                 <h4 class="number mb-0">{{ $status->CsrStudent()->where('csr_id', $csr->id)->whereDate('called_at', \Carbon\Carbon::today())->count() }}</h4>
+                                                            @else
+                                                                <h4 class="number mb-0">
+                                                                    {{ $status->CsrStudent()
+                                                                        ->where('csr_id', $csr->id)
+                                                                        ->where('called_at', '>=', \Carbon\Carbon::parse($from)->startOfDay())
+                                                                        ->where('called_at', '<=', \Carbon\Carbon::parse($to)->endOfDay())
+                                                                        ->count() }}
+                                                                </h4>
+                                                            @endif
+                                                            
                                                                 <small class="text-muted">Analytics for Today</small>
                                                             </div>
                                                         </div>
@@ -115,6 +153,75 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="col-md-4">
+                                            <div class="card top_widget">
+                                                <div class="body">
+                                                    <div class="icon"><i class="mdi mdi-cellphone"></i></div>
+                                                    <div class="content">
+                                                        <div class="text mb-2 text-uppercase">Total Paid Students</div>
+                                                        @php
+                                                            $currentYear = date('Y');
+                                                            $courseCount = \App\Models\Student::query()
+                                                                ->selectRaw('COUNT(*) as course_count')
+                                                                ->join('student_courses as sc', 'students.id', '=', 'sc.student_id')
+                                                                ->join(DB::raw('(SELECT student_course_id, MIN(payment_date_first) AS first_payment_date
+                                                                                FROM student_course_payments
+                                                                                GROUP BY student_course_id) as scp'), 'sc.id', '=', 'scp.student_course_id')
+                                                                ->where('students.csr_id', $csr->id)
+                                                                ->where('sc.status_id', 1)
+                                                                ->whereYear('scp.first_payment_date', $currentYear);
+
+                                                            // Apply date range filter if both $from and $to are provided
+                                                            if ($from && $to) {
+                                                                $courseCount->whereDate('scp.first_payment_date', '>=', \Carbon\Carbon::parse($from)->startOfDay())
+                                                                            ->whereDate('scp.first_payment_date', '<=', \Carbon\Carbon::parse($to)->startOfDay());
+                                                            }
+
+                                                            $courseCount = $courseCount->first();
+
+                                                            $PaidcourseCount = $courseCount->course_count ?? 0;
+                                                        @endphp
+
+                                                        <h4 class="number mb-0">{{ $PaidcourseCount }}</h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card top_widget">
+                                                <div class="body">
+                                                    <div class="icon"><i class="mdi mdi-cellphone"></i></div>
+                                                    <div class="content">
+                                                        <div class="text mb-2 text-uppercase">Total Partial Students</div>
+                                                        @php
+                                                            $currentYear = date('Y');
+                                                            $courseCount = \App\Models\Student::query()
+                                                                ->selectRaw('COUNT(*) as course_count')
+                                                                ->join('student_courses as sc', 'students.id', '=', 'sc.student_id')
+                                                                ->join(DB::raw('(SELECT student_course_id, MIN(payment_date_first) AS first_payment_date
+                                                                                FROM student_course_payments
+                                                                                GROUP BY student_course_id) as scp'), 'sc.id', '=', 'scp.student_course_id')
+                                                                ->where('students.csr_id', $csr->id)
+                                                                ->where('sc.status_id', 2)
+                                                                ->whereYear('scp.first_payment_date', $currentYear);
+
+                                                            // Apply date range filter if both $from and $to are provided
+                                                            if ($from && $to) {
+                                                                $courseCount->whereDate('scp.first_payment_date', '>=', \Carbon\Carbon::parse($from)->startOfDay())
+                                                                            ->whereDate('scp.first_payment_date', '<=', \Carbon\Carbon::parse($to)->startOfDay());
+                                                            }
+
+                                                            $courseCount = $courseCount->first();
+
+                                                            $PartialcourseCount = $courseCount->course_count ?? 0;
+                                                        @endphp
+                                                    
+                                                    
+                                                        <h4 class="number mb-0">{{ $PartialcourseCount }}</h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <div class="col-md-12">
                                             <div class="card">
@@ -140,14 +247,13 @@
                     </div>
                 </div>                
             </div>
-            <div class="col-md-12">
+            {{-- <div class="col-md-12">
                 <div class="card">
                     <div class="body">
                         <div id="calendar"></div>
                     </div>
                 </div>
-            </div>
-
+            </div> --}}
             <div class="col-md-12">
                 <div class="card">
                     <div class="header">
@@ -160,6 +266,11 @@
                                 <h2 class="text-white" style="color: #fff !important;">{{ $course->name }}</h2>
                                 <section>
                                     <div class="row clearfix row-deck">
+                                        @if($course->batches->isEmpty())
+                                            <span class="text-danger">
+                                                Batches Not found!
+                                            </span>
+                                        @else
                                         <ul class="nav nav-tabs-new2">
                                          
                                             @foreach($course->batches as $batch)
@@ -172,6 +283,7 @@
                                             @foreach($course->batches as $batch)
                                                 @php
                                                     $studentCourses = \App\Models\StudentCourse::where(['batch_id' => $batch->id, 'is_continued' => 1])->get();
+                                                    $totalStudentsInCourse = \App\Models\StudentCourse::where(['batch_id' => $batch->id, 'course_id' => $course->id])->count();
                                                     $discontinuedStudentCourses = \App\Models\StudentCourse::where(['batch_id' => $batch->id, 'is_continued' => 0])->get();
                                                     //total fees of students
                                                     $totalFees = $studentCourses->sum('fee');
@@ -205,7 +317,7 @@
                                                                                                 <div class="icon text-info"><i class="fa fa-users"></i> </div>
                                                                                                 <div class="content">
                                                                                                     <div class="text">Total Students</div>
-                                                                                                    <h5 class="number">{{ formatPrice($studentCourses->count()) }}</h5>
+                                                                                                    <h5 class="number">{{ $totalStudentsInCourse }}</h5>
                                                                                                 </div>
                                                                                             </div>                        
                                                                                         </div>
@@ -238,7 +350,7 @@
                                                                                     </a>
                                                                                 </div>
                                                                                 <div class="col-lg-4 col-md-6">
-                                                                                    {{-- <a href="{{ route('admin.students.by.status', ['status' => 2, 'batch_id' => $batch->id]) }}"> --}}
+                                                                                    <a href="{{ route('admin.index.workshops', $batch->id) }}">
                                                                                         <div class="card top_counter" data-toggle="modal" data-target="#WorkshopModal_{{$batch->id }}">
                                                                                             <div class="body">
                                                                                                 <div class="icon text-info"><i class="fa fa-desktop"></i> </div>
@@ -248,7 +360,7 @@
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
-                                                                                    {{-- </a> --}}
+                                                                                    </a>
                                                                                 </div>
                                                                                 <div class="col-lg-4 col-md-6">
                                                                                     <div class="card top_counter">
@@ -256,7 +368,7 @@
                                                                                             <div class="icon text-danger"><i class="fa fa-bars"></i> </div>
                                                                                             <div class="content">
                                                                                                 <div class="text">Orientation</div>
-                                                                                                <h5 class="number"></h5>
+                                                                                                <h5 class="number">0</h5>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -280,7 +392,7 @@
                                                                                             <div class="icon text-danger"><i class="fa fa-calendar"></i> </div>
                                                                                             <div class="content">
                                                                                                 <div class="text">Batch Start Date</div>
-                                                                                                <h5 class="number"> {{ $batch->starting_date }} </h5>
+                                                                                                <h5 class="number"> {{ \Carbon\Carbon::parse($batch->starting_date)->format('d F, Y') }} </h5>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -291,7 +403,18 @@
                                                                                             <div class="icon text-danger"><i class="fa fa-close"></i> </div>
                                                                                             <div class="content">
                                                                                                 <div class="text">Batch Ending Date</div>
-                                                                                                <h5 class="number"> {{ $batch->ending_date }} </h5>
+                                                                                                <h5 class="number"> {{ \Carbon\Carbon::parse($batch->ending_date)->format('d F, Y') }} </h5>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <div class="card top_counter">
+                                                                                        <div class="body">
+                                                                                            <div class="icon text-danger"><i class="fa fa-clock  "></i> </div>
+                                                                                            <div class="content">
+                                                                                                <div class="text">Batch Duration</div>
+                                                                                                <h5 class="number"> {{ $batch->course->duration }} </h5>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -366,8 +489,8 @@
                                                     </div>
                                                 </div>
                                             @endforeach
-                                           
                                         </div>
+                                        @endif
                                     </div>
                                 </section>
                             @endforeach
@@ -381,106 +504,6 @@
     </div>
 </div>
 
-
-    @foreach($courses as $course)
-        @foreach($course->batches as $batch)
-            @php
-                $workshops = getWorkshopsByBatchId($batch->id);
-            @endphp                                            
-                <div class="modal fade" id="WorkshopModal_{{ $batch->id }}" tabindex="-1" role="dialog">
-                    <div class="modal-dialog modal-xl" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="title" id="largeModalLabel">Workshops Details</h4>
-                            </div>
-                            <div class="modal-body">
-                                @if(!empty($workshops))
-                                    <div class="card">
-                                        <div class="header">
-                                            <h2>Student Workshops</h2>
-                                        </div>
-                                        <div class="body">
-                                            <div class="wizard_vertical3" id="">
-                                                @foreach ($workshops as  $index => $work)
-                                                    <h2>{{ $work->title }}</h2>
-                                                    <section>
-                                                        <div class="row">
-                                                            <div class="col-md-4">
-                                                                <dl class="param">
-                                                                    <dt>Title: </dt>
-                                                                    <dd>{{ $work->title }}</dd>
-                                                                </dl>
-                                                            </div>
-                                                            <div class="col-md-4">
-                                                                <dl class="param">
-                                                                    <dt>Trainer: </dt>
-                                                                    <dd>{{ $work->trainer }}</dd>
-                                                                </dl>
-                                                            </div>
-                                                            <div class="col-md-4">
-                                                                <dl class="param">
-                                                                    <dt>Workshop Date & Time: </dt>
-                                                                    <dd>{{ \Carbon\Carbon::parse($work->datetime)->format('d F, Y') }}</dd>
-                                                                </dl>
-                                                            </div>
-                                                            <div class="col-md-4">
-                                                                <dl class="param">
-                                                                    <dt>Venue: </dt>
-                                                                    <dd>{{ $work->venue }}</dd>
-                                                                </dl>
-                                                            </div>
-                                                            <div class="col-md-12">
-                                                                <div class="card">
-                                                                    <div class="card-header bg-primary">
-                                                                        <h5 class="text-white text-center">Registered Students</h5>
-                                                                    </div>
-                                                                    <div class="card-body">
-                                                                        <div class="table-responsive">
-                                                                            <table class="table table-bordered  table-hover ">
-                                                                                <thead>
-                                                                                    <tr>
-                                                                                        <th class="text-uppercase">Student Name</th>
-                                                                                        <th class="text-uppercase">Email</th>
-                                                                                        <th class="text-uppercase">Phone</th>
-                                                                                        <th class="text-uppercase">City</th>
-                                                                                        <th class="text-uppercase">CNIC</th>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                                <tbody >
-                                                                                    @foreach ($work->workshop_students as $index => $stu)
-                                                                                    <tr>
-                                                                                        <td>{{ $stu->name }}</td>
-                                                                                        <td>{{ $stu->email }}</td>
-                                                                                        <td>{{ $stu->number }}</td>
-                                                                                        <td>{{ $stu->city }}</td>
-                                                                                        <td>{{ $stu->cnic }}</td>
-                                                                                    </tr>
-                                                                                    @endforeach
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            
-                                                            </div>
-                                                        </div>
-                                                    </section>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-                                @else
-                                <p class="text-danger">There is no Workshops created!</p>
-                                @endif
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger" data-dismiss="modal">CLOSE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-        @endforeach
-    @endforeach
 
 
 

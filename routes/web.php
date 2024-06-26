@@ -85,6 +85,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::post('distribute-data', 'distribute')->name('distribute');
         Route::post('total-student','getTotalData')->name('count.student');
         Route::get('filter-distribute-data','filterDistributedData')->name('filter.distribute-data');
+        Route::get('filter-distribute-record-data','FilterdistributionRecord')->name('filter.distribute-record');
     });
 
     Route::controller(CsrManagementController::class)->group(function(){
@@ -190,14 +191,18 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::post('store-instructor', 'store')->name('store.instructor');
         Route::get('edit-instructor/{id?}', 'edit')->name('edit.instructor');
         Route::put('update-instructor/{id?}', 'update')->name('update.instructors');
+        Route::get('all-instructor-courses/{id?}', 'instructorCourses')->name('instructor.courses');
+        Route::get('course-instructor-batches/{instructorId?}/{courseId?}', 'instructorBatches')->name('instructor.batches');
+        Route::get('course-instructor-batches-lectures/{batchId?}', 'batchLectures')->name('instructor.batch-lectures');
     });
+
 
 });
 
 Route::group(['prefix' => 'instructor', 'middleware' => ['auth', 'instructor', 'revalidate'], 'as' => 'instructor.'], function(){
 
     Route::controller(InstructorIndexController::class)->group(function(){
-        Route::get('dashboard', 'dashboard')->name('dashboard');
+        Route::get('dashboard', 'dashboard')->name('dashboard');    
         Route::get('instructor-batches/{instructorId?}/{courseId?}', 'instructorBatches')->name('allBatches');
         Route::get('lecture-batches/{batchId?}', 'batchLectures')->name('batch.lecture');
         Route::get('student-lecture-attendance/{lectureId?}', 'studentAttendance')->name('student.attendance');
@@ -214,7 +219,7 @@ Route::group(['prefix' => 'instructor', 'middleware' => ['auth', 'instructor', '
 });
 
 Route::get('accounts', [AccountsController::class, 'index'])->name('index.accounts')->middleware('auth');
-Route::get('search-accounts', [AccountsController::class, 'filterPayment'])->name('search.accounts')->middleware('auth');
+Route::get('search-accounts', [AccountsController::class, 'c'])->name('search.accounts')->middleware('auth');
 
 Route::post('orientation-registration/{id?}', [OrientationController::class, 'register'])->name('register.orientation');
 

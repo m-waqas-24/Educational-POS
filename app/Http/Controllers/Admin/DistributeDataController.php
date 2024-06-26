@@ -32,17 +32,19 @@ class DistributeDataController extends Controller
                                               ->whereBetween('datetime', [$from, $to])
                                               ->count();
     
-        if ($request->has('course')) {
+        if ($request->has('course') && !$request->course == 'all') {
             $studentsCountofCourse = ImportStudent::where('is_distributed', 0)
             ->where('course', 'like', '%' . $request->course . '%')
+                                                  ->whereBetween('datetime', [$from, $to])
+                                                  ->count();
+        }elseif($request->has('course') && $request->course == 'all'){
+            $studentsCountofCourse = ImportStudent::where('is_distributed', 0)
                                                   ->whereBetween('datetime', [$from, $to])
                                                   ->count();
         }
     
         return response()->json(['studentsCountofDates' => $studentsCountofDates, 'studentsCountofCourse' => $studentsCountofCourse]);
     }
-    
-    
 
     public function distribute(Request $request)
     {
@@ -61,10 +63,17 @@ class DistributeDataController extends Controller
         // Initialize an array to keep track of the distribution count per CSR
         $csrDistribution = array_fill_keys($request->csr, 0);
     
-        $students = ImportStudent::where('is_distributed', 0)
+        if ($request->has('course') && !$request->course == 'all'){
+            $students = ImportStudent::where('is_distributed', 0)
             ->where('course', 'like', '%' . $request->course . '%')
             ->whereBetween('datetime', [$from, $to])
             ->get();
+        }elseif($request->has('course') && $request->course == 'all'){
+            $students = ImportStudent::where('is_distributed', 0)
+            ->whereBetween('datetime', [$from, $to])
+            ->get();
+        }
+        
         
         $totalStudents = $students->count();
         
@@ -104,13 +113,32 @@ class DistributeDataController extends Controller
     }
     
     
-    
-    
     public function distributionRecord(){
+        $from = null;
+        $to = null;
         $reports = DataDistributionRecord::all();
 
         return view('admin.distribute-data.recoords', compact('reports'));
     }
+
+    public function FilterdistributionRecord(Request $req){
+        $reports = DataDistributionRecord::query();
+    
+        if($req->from && $req->to){
+            $from = Carbon::createFromFormat('m/d/Y', $req->from)->startOfDay()->toDateTimeString();
+            $to = Carbon::createFromFormat('m/d/Y', $req->to)->endOfDay()->toDateTimeString();
+    
+            $reports->whereBetween('created_at', [$from, $to]);
+        }
+    
+        $reports = $reports->get();
+    
+        return view('admin.distribute-data.recoords', compact('reports'));
+    }
+    
+
+
+
     
     public function filterDistributedData(Request $request) {
         $importedStudents = ImportStudent::orderBy('id', 'DESC')->where('is_distributed', 0)->get();

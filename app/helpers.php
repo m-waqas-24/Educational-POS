@@ -3,6 +3,7 @@
 use App\Models\Batch;
 use App\Models\Course;
 use App\Models\StudentCourse;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -58,22 +59,59 @@ if(!function_exists('formatPrice')){
         Session::forget('student_course_id');
     }
 
-    function partialStudents(){
+    function oldPartialStudents(){
         $user = Auth::user();
         $userId = $user->id;
+        $fortyFiveDaysAgo = Carbon::today()->subDays(45);
         $student = 0;
+    
         if($user->type == 'csr'){
             $student = StudentCourse::where(['status_id' => 2, 'is_confirmed' => 1, 'is_continued' => 1])
-            ->whereHas('student', function ($query) use ($userId) {
-                $query->where('csr_id', $userId);
-            })
-            ->count();
-        }else{
-            $student = StudentCourse::where(['status_id' => 2, 'is_confirmed' => 1, 'is_continued' => 1])->count();
+                ->whereHas('student', function ($query) use ($userId) {
+                    $query->where('csr_id', $userId);
+                })
+                ->whereHas('coursePayments', function ($query) use ($fortyFiveDaysAgo) {
+                    $query->where('payment_date_first', '<', $fortyFiveDaysAgo);
+                })
+                ->count();
+        } else {
+            $student = StudentCourse::where(['status_id' => 2, 'is_confirmed' => 1, 'is_continued' => 1])
+                ->whereHas('coursePayments', function ($query) use ($fortyFiveDaysAgo) {
+                    $query->where('payment_date_first', '<', $fortyFiveDaysAgo);
+                })
+                ->count();
         }
 
         return $student;
     }
+    
+    function newPartialStudents(){
+        $user = Auth::user();
+        $userId = $user->id;
+        $fortyFiveDaysAgo = Carbon::today()->subDays(45);
+        $student = 0;
+    
+        if($user->type == 'csr'){
+            $student = StudentCourse::where(['status_id' => 2, 'is_confirmed' => 1, 'is_continued' => 1])
+                ->whereHas('student', function ($query) use ($userId) {
+                    $query->where('csr_id', $userId);
+                })
+                ->whereHas('coursePayments', function ($query) use ($fortyFiveDaysAgo) {
+                    $query->where('payment_date_first', '>=', $fortyFiveDaysAgo);
+                })
+                ->count();
+        } else {
+            $student = StudentCourse::where(['status_id' => 2, 'is_confirmed' => 1, 'is_continued' => 1])
+                ->whereHas('coursePayments', function ($query) use ($fortyFiveDaysAgo) {
+                    $query->where('payment_date_first', '>=', $fortyFiveDaysAgo);
+                })
+                ->count();
+        }
+    
+        return $student;
+    }
+    
+
     function paidStudents(){
         $user = Auth::user();
         $userId = $user->id;
@@ -119,18 +157,25 @@ if(!function_exists('formatPrice')){
 
     function getWorkshopsByBatchId($batch_id){
         $response = Http::get('https://workshops.niais.org/api/workshops');
-        $workshops = json_decode($response->body());
+  
+        if ($response->successful()) {
+            $workshops = json_decode($response->body());
         
-        // Filter workshops based on the given batch_id
-        $filteredWorkshops = [];
-        foreach ($workshops->workshops as $workshop) {
-            if ($workshop->batch_id == $batch_id) {
-                $filteredWorkshops[] = $workshop;
+            // Filter workshops based on the given batch_id
+            $filteredWorkshops = [];
+        
+            foreach ($workshops->workshops as $workshop) {
+                if ($workshop->batch_id == $batch_id) {
+                    $filteredWorkshops[] = $workshop;
+                }
             }
-        }
         
-        return $filteredWorkshops;
-    }
+            return $filteredWorkshops;
+        } else {
+            return ['error' => 'Failed to fetch workshops.'];
+        }
+  
+      }
 
 
     function workshopStudents($id){

@@ -196,9 +196,14 @@
                                 <li class="{{ request()->input('status') == 2 || request()->input('status') == 1 ? 'active' : '' }}">
                                     <a href="#Tables" class="has-arrow"><i class="fa fa-users"></i><span>All Students</span></a>
                                     <ul>
-                                        <li class="{{ request()->input('status') == 2 ? 'active' : '' }}">
-                                            <a href="{{ route('admin.index.students', ['status' => 2]) }}">Partial <span class="badge badge-danger float-right">{{ partialStudents() }}</span></a>
+                                    
+                                        <li class="{{ request()->input('status') == 2 && request()->input('category') == 'new' ? 'active' : '' }}">
+                                            <a href="{{ route('admin.index.students', ['status' => 2, 'category' => 'new']) }}">New Partial <span class="badge badge-danger float-right">{{ newPartialStudents() }}</span></a>
                                         </li>
+                                        <li class="{{ request()->input('status') == 2 && request()->input('category') == 'old' ? 'active' : '' }}">
+                                            <a href="{{ route('admin.index.students', ['status' => 2, 'category' => 'old']) }}">Old Partial <span class="badge badge-danger float-right">{{ oldPartialStudents() }}</span></a>
+                                        </li>
+                                        
                                         <li class="{{ request()->input('status') == 1 ? 'active' : '' }}">
                                             <a href="{{ route('admin.index.students', ['status' => 1]) }}">Paid <span class="badge badge-success float-right">{{ paidStudents() }}</span></a> 
                                         </li>
@@ -234,8 +239,11 @@
                             <li class="{{ request()->input('status') == 2 || request()->input('status') == 1 ? 'active' : '' }}">
                                 <a href="#Tables" class="has-arrow"><i class="fa fa-users"></i><span>All Students</span></a>
                                 <ul>
-                                    <li class="{{ request()->input('status') == 2 ? 'active' : '' }}">
-                                        <a href="{{ route('admin.index.students', ['status' => 2]) }}">Partial Students <span class="badge badge-warning float-right">{{ partialStudents() }}</span></a>
+                                    <li class="{{ request()->input('status') == 2 && request()->input('category') == 'new' ? 'active' : '' }}">
+                                        <a href="{{ route('admin.index.students', ['status' => 2, 'category' => 'new']) }}">New Partial <span class="badge badge-danger float-right">{{ newPartialStudents() }}</span></a>
+                                    </li>
+                                    <li class="{{ request()->input('status') == 2 && request()->input('category') == 'old' ? 'active' : '' }}">
+                                        <a href="{{ route('admin.index.students', ['status' => 2, 'category' => 'old']) }}">Old Partial <span class="badge badge-danger float-right">{{ oldPartialStudents() }}</span></a>
                                     </li>
                                     <li class="{{ request()->input('status') == 1 ? 'active' : '' }}">
                                         <a href="{{ route('admin.index.students', ['status' => 1]) }}">Paid Students <span class="badge badge-warning float-right">{{ paidStudents() }}</span></a> 

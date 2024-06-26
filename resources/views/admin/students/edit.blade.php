@@ -57,7 +57,7 @@
                                       <div class="col-md-3">
                                         <div class="form-group">
                                             <label class="form-label">Whatsapp</label>
-                                            <input required type="number"   class="form-control" name="whatsapp" value="{{ $stuCourse ? $stuCourse->student->whatsapp : '' }}"  placeholder="Whatsapp(Without dashes)">
+                                            <input  type="number"   class="form-control" name="whatsapp" value="{{ $stuCourse ? $stuCourse->student->whatsapp : '' }}"  placeholder="Whatsapp(Without dashes)">
                                         </div>
                                     </div> 
                                     @if(getUserType() == 'admin' || getUserType() == 'superadmin')

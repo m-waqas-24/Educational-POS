@@ -33,27 +33,43 @@ class StudentController extends Controller
         $to = null;
         $id = null;
         $status = $request->status;
+        $category = $request->category ?? null;
         $csrs = User::where(['type' => 'csr', 'status' => 1])->get();
         $courses = Course::all();
     
-        if (getUserType() == 'admin' || getUserType() == 'superadmin') {
-            $studentCourses = StudentCourse::where(['status_id' => $status, 'is_confirmed' => 1, 'is_continued' => 1])->orderBy('id','DESC')->get();
-        } elseif (getUserType() == 'csr' && Auth::user()->role_id == 1) {
-            $studentCourses = StudentCourse::where(['status_id' => $status, 'is_confirmed' => 1, 'is_continued' => 1])->orderBy('id','DESC')->get();
-        } elseif (getUserType() == 'csr' && Auth::user()->role_id == null) {
-            $authenticatedUserId = Auth::id();
-
-            $studentCourses = StudentCourse::where(['status_id' => $status, 'is_confirmed' => 1, 'is_continued' => 1])
-            ->whereHas('student', function ($query) use ($authenticatedUserId) {
-                $query->where('csr_id', $authenticatedUserId);
+        $fortyFiveDaysAgo = Carbon::today()->subDays(45);
+    
+        $query = StudentCourse::where(['status_id' => $status, 'is_confirmed' => 1, 'is_continued' => 1])
+            ->whereHas('coursePayments', function ($query) {
+                $query->orderBy('payment_date_first', 'ASC');
             })
-            ->orderBy('id', 'DESC')
-            ->get();
+            ->with(['coursePayments' => function ($query) {
+                $query->orderBy('payment_date_first', 'ASC');
+            }]);
+             
+        if (getUserType() == 'csr' && Auth::user()->role_id == null) {
+            $authenticatedUserId = Auth::id();
+            $query->whereHas('student', function ($query) use ($authenticatedUserId) {
+                $query->where('csr_id', $authenticatedUserId);
+            });
         }
+    
+        if ($category == 'new') {
+            $studentCourses = $query->get()->filter(function ($studentCourse) use ($fortyFiveDaysAgo) {
+                return $studentCourse->coursePayments->first()->payment_date_first >= $fortyFiveDaysAgo;
+            });
+        } elseif ($category == 'old') {
+            $studentCourses = $query->get()->filter(function ($studentCourse) use ($fortyFiveDaysAgo) {
+                return $studentCourse->coursePayments->first()->payment_date_first < $fortyFiveDaysAgo;
+            });
+        } else {
+            $studentCourses = $query->get();
+        }
+    
         $modes = Bank::all();
         $batches = Batch::all();
     
-        return view('admin.students.index', compact('studentCourses', 'courses','id','status', 'csrs','from', 'to', 's_csr', 'modes', 'batches'));
+        return view('admin.students.index', compact('studentCourses', 'courses', 'id', 'status', 'csrs', 'from', 'to', 's_csr', 'modes', 'batches'));
     }
 
     public function disContinuedStudent(){
@@ -448,7 +464,7 @@ class StudentController extends Controller
             }elseif($status == 2){
                 $studentCourses = StudentCourse::where(['status_id' => $status, 'is_continued' => 1, 'batch_id' => $batch_id])->orderBy('id','DESC')->get();
             }elseif($status == 3){
-                $studentCourses = StudentCourse::where(['status_id' => $status, 'is_continued' => 1, 'batch_id' => $batch_id])->orderBy('id','DESC')->get();
+                $studentCourses = StudentCourse::where(['is_continued' => 0, 'batch_id' => $batch_id])->orderBy('id','DESC')->get();
             }
 
             return view('admin.students.students-by-status', compact('studentCourses', 'status', 'batch'));

@@ -88,32 +88,39 @@ class CSRDataController extends Controller
         return view('admin.csr.enroll-student', compact('student', 'csrs', 'qualifications', 'sources', 'provinces', 'courses', 'batches', 'modes'));
     }
 
-    public function filterActionStatusesTodayData(Request $request){
+    public function filterActionStatusesTodayData(Request $request) {
         $user = Auth::user();
         $id = $request->id;
         $csr = $request->csr;
+        $from = $request->from ?? null;
+        $to = $request->to ?? null;
     
-        // Check if $id is null
-        if ($id === null) {
-            // Get all students for the given CSR for today
-            $students = CsrStudent::where('csr_id', $csr)
-                ->whereDate('called_at', Carbon::today()->toDateString())
-                ->get();
-            // Set action to null as there is no specific action status
-            $action = null;
-        } else {
-            // Get students with specific action status for today
-            $students = CsrStudent::where([
-                'csr_id' => $csr,
-                'action_status_id' => $id
-            ])->whereDate('called_at', Carbon::today()->toDateString())
-            ->get();
-            // Get the specific action status
+        // Initialize the query for CsrStudent
+        $query = CsrStudent::where('csr_id', $csr);
+    
+        // Check if an action status ID is provided
+        if ($id !== null) {
+            $query->where('action_status_id', $id);
             $action = CsrActionStatus::find($id);
+        } else {
+            $action = null;
         }
     
-        return view('admin.csr.filter-action-status', compact('students', 'action', 'csr'));
+        // Apply date filters based on presence of $from and $to
+        if ($from && $to) {
+            $query->where('called_at', '>=', Carbon::parse($from)->startOfDay())
+                  ->where('called_at', '<=', Carbon::parse($to)->endOfDay());
+        } else {
+            // Default to today's date if no date range is provided
+            $query->whereDate('called_at', Carbon::today()->toDateString());
+        }
+    
+        // Execute the query to get the students
+        $students = $query->get();
+    
+        return view('admin.csr.filter-action-status', compact('students', 'action', 'csr', 'from', 'to'));
     }
+    
     
 
     public function getFollowUpData(){

@@ -26,6 +26,31 @@
         </div>
         
         <div class="row clearfix">
+
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="body">
+                        <form action="{{ route('admin.filter.distribute-record') }}" method="GET" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row clearfix">
+                                <div class="col-md-8">
+                                    <label>Range</label>  
+                                    <div class="input-daterange input-group" data-provide="datepicker">
+                                        <input type="text" value="{{ @$from ?? '' }}" class="input-sm form-control" name="from" autocomplete="off">
+                                        <span class="input-group-addon mx-2">To</span>
+                                        <input type="text" value="{{ @$to ?? '' }}" class="input-sm form-control" name="to" autocomplete="off">
+                                    </div>
+                                </div>
+                                
+                                <div class=" mt-4">
+                                    <button type="submit" class="btn btn-primary mt-2 btn-sm"><i class="fa fa-search mr-2"></i> Search</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-lg-12">
                 <div class="card">
                     <div class="body">

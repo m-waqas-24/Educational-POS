@@ -37,6 +37,9 @@
             </div>
 
             <div class="row clearfix">
+               
+                
+                
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="body">
@@ -58,6 +61,7 @@
                                             <label>Course</label>
                                             <select required name="course" id="course" class="form-control">
                                                 <option value="">Select Course</option>
+                                                <option value="all">All Courses</option>
                                                 @foreach ($courses as $course)
                                                     <option value="{{ $course }}">{{ $course }}</option>
                                                 @endforeach

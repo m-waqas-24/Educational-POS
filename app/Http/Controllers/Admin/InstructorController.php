@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\Instructor;
+use App\Models\Batch;
+use App\Models\BatchInstructor;
+use App\Models\BatchLecture;
 use App\Models\Course;
 use App\Models\InstructorBatch;
 use App\Models\InstructorCourse;
+use App\Models\StudentCourse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -104,6 +108,31 @@ class InstructorController extends Controller
     
         // Return back with a success message
         return redirect()->route('admin.index.instructors')->withSuccess('Instructor updated successfully!');
+    }
+
+    public function instructorCourses($id){
+        $instructorCourses = InstructorCourse::where('instructor_id', $id)->get();
+
+        return view('admin.instructor.courses', compact('instructorCourses'));
+    }
+
+
+    public function instructorBatches($instructorId, $courseId){
+        $batches = BatchInstructor::where(['instructor_id' => $instructorId, 'course_id' => $courseId])->orderBy('id', 'DESC')->get();
+        $course = Course::find($courseId);
+
+       return view('admin.instructor.all-batches', compact('course', 'batches'));
+    }
+
+    public function batchLectures($batchId){
+        $lectures = BatchLecture::where('batch_id', $batchId)->orderBy('date_time', 'asc')->get();
+        if($lectures->count() == 0){
+            return redirect()->back()->withErrors('Lecture not scheduled yet!.');
+        }
+        $batch = Batch::find($batchId);
+        $students = StudentCourse::where('batch_id', $batchId)->get();
+
+        return view('admin.instructor.batch-lecture', compact('lectures', 'batch', 'students'));
     }
 
 }

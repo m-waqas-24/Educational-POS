@@ -37,6 +37,8 @@
                                         <th class="text-uppercase">Name</th>
                                         <th class="text-uppercase">Email</th>
                                         <th class="text-uppercase">Mobile</th>
+                                        <th class="text-uppercase">Joining Date</th>
+                                        <th class="text-uppercase">Left Date</th>
                                         <th class="text-uppercase">Status</th>
                                         <th class="text-uppercase">Action</th>
                                     </tr>
@@ -47,6 +49,8 @@
                                             <td> {{ $csr->name }} </td>
                                             <td> {{ $csr->email }} </td>
                                             <td> {{ $csr->mob }} </td>
+                                            <td> {{ \Carbon\Carbon::parse($csr->created_at)->format('d F, Y') }} </td>
+                                            <td> </td>
                                             <td>
                                                 @if($csr->status == 1)
                                                 <span class="badge badge-success">Active</span>
@@ -65,7 +69,7 @@
                                                     <i class="fa fa-check"></i>
                                                 </a>
                                                 @endif
-                                                <a href="{{ route('admin.csr.dashboard', $csr->id) }}" class="btn btn-sm btn-warning" ><i class="fa fa-eye mr-2"></i>CSR Activity</a>                                            
+                                                {{-- <a href="{{ route('admin.csr.dashboard', $csr->id) }}" class="btn btn-sm btn-warning" ><i class="fa fa-eye mr-2"></i>CSR Activity</a>                                             --}}
                                             </td>
                                         </tr>
                                     @endforeach

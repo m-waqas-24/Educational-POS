@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\CsrActionStatus;
 use App\Models\Admin\CsrStudent;
+use App\Models\Batch;
 use App\Models\Course;
 use App\Models\DataDistributionRecord;
 use App\Models\ImportStudent;
@@ -18,7 +19,10 @@ use Illuminate\Support\Facades\DB;
 
 class IndexController extends Controller
 {
-    public function dashboard(){
+    public function dashboard(Request $request){
+
+        $from = $request->from ?? null;
+        $to = $request->to ?? null;
         if(getUserType() == 'csr'){
 
             $actionStatus = CsrActionStatus::all();
@@ -84,7 +88,7 @@ class IndexController extends Controller
                 'users.name as csr_name',
                 DB::raw('MONTH(student_course_payments.payment_date_first) as month'),
                 DB::raw('YEAR(student_course_payments.payment_date_first) as year'),
-                DB::raw('count(*) as count')
+                DB::raw('count(DISTINCT student_courses.id) as count') // Count distinct student courses
             )
             ->whereIn('students.csr_id', $filtercsrs->keys())
             ->whereYear('student_course_payments.payment_date_first', $currentYear)
@@ -151,7 +155,7 @@ class IndexController extends Controller
             }
     
             return view('admin.dashboard.dashboard', compact(
-                'actionStatus',  'totalCallToday', 'csrId', 'csrData', 'csrEnrollData', 'csrs', 'csrPartialEnrollData'
+                'actionStatus',  'totalCallToday', 'csrId', 'from', 'to', 'csrData', 'csrEnrollData', 'csrs', 'csrPartialEnrollData'
             ));
         }else{
 
@@ -199,18 +203,19 @@ class IndexController extends Controller
             //========Get month-wise student enrollments based on the first payment date, grouped by student_course_id start========
             $monthlyEnrollStudentCounts = StudentCourse::select(
                 DB::raw('MONTH(MIN(student_course_payments.payment_date_first)) as month'),
-                DB::raw('count(*) as count')
+                DB::raw('count(DISTINCT student_courses.id) as count')
             )
             ->join('student_course_payments', function($join) {
                 $join->on('student_courses.id', '=', 'student_course_payments.student_course_id')
                     ->whereRaw('student_course_payments.payment_date_first = (SELECT MIN(payment_date_first) FROM student_course_payments WHERE student_course_id = student_courses.id)');
             })
-            ->whereYear('student_course_payments.payment_date_first', $currentYear)
             ->groupBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
+            ->whereYear('student_course_payments.payment_date_first', $currentYear)
             ->orderBy(DB::raw('MONTH(student_course_payments.payment_date_first)'))
             ->get()
             ->keyBy('month')
             ->toArray();
+        
         
         // Initialize an array to hold the counts for each month
         $enrollStudentCountsByMonth = array_fill(1, 12, 0); 
@@ -278,15 +283,14 @@ class IndexController extends Controller
                 'users.name as csr_name',
                 DB::raw('MONTH(student_course_payments.payment_date_first) as month'),
                 DB::raw('YEAR(student_course_payments.payment_date_first) as year'),
-                DB::raw('count(*) as count')
+                DB::raw('count(DISTINCT student_courses.id) as count') // Count distinct student courses
             )
             ->whereIn('students.csr_id', $filtercsrs->keys())
             ->whereYear('student_course_payments.payment_date_first', $currentYear)
             ->groupBy('users.id', 'users.name', DB::raw('MONTH(student_course_payments.payment_date_first)'), DB::raw('YEAR(student_course_payments.payment_date_first)'))
             ->orderBy('users.name')
             ->get();
-        
-
+   
         
         $csrEnrollData = [];
         foreach ($monthlyEnrollStudentCountsByCSR as $data) {
@@ -304,6 +308,7 @@ class IndexController extends Controller
         
             $csrEnrollData[$csrName][$year][$month] = $data->count;
         }
+
 
         $partialEnrollStudentCountsByCSR = [];
         foreach ($filtercsrs as $csrId => $csrName) {
@@ -347,33 +352,35 @@ class IndexController extends Controller
             $csrPartialEnrollData[$csrName][$year][$month] = $data->count;
         }
 
+
         $courses = Course::all();
 
-        return view('admin.dashboard.admin-dashboard', compact( 'csrs', 'courses','actionStatus','dataDistributedCountsByMonth', 'dueDataCountsByMonth', 'enrollStudentCountsByMonth', 'csrData', 'csrEnrollData', 'csrPartialEnrollData'));  
+        return view('admin.dashboard.admin-dashboard', compact( 'csrs', 'from', 'to', 'courses','actionStatus','dataDistributedCountsByMonth', 'dueDataCountsByMonth', 'enrollStudentCountsByMonth', 'csrData', 'csrEnrollData', 'csrPartialEnrollData'));  
         }
 
     }
 
-    public function adminViewCsrDashboard($id){
-        $actionStatus = CsrActionStatus::all();
-        $user = Auth::user();
-        $totalCallToday = CsrStudent::where('csr_id', $id)->whereDate('called_at', Carbon::today()->toDateString())->count();
-        $students = CsrStudent::where(['csr_id' => $id, 'action_status_id' => 0 ])->orderBy('id','DESC')->count();
-        $csrId = $id;
-        $totalData = CsrStudent::where('csr_id', $id)->count();
+    // public function adminViewCsrDashboard($id){
+    //     $actionStatus = CsrActionStatus::all();
+    //     $user = Auth::user();
+    //     $totalCallToday = CsrStudent::where('csr_id', $id)->whereDate('called_at', Carbon::today()->toDateString())->count();
+    //     $students = CsrStudent::where(['csr_id' => $id, 'action_status_id' => 0 ])->orderBy('id','DESC')->count();
+    //     $csrId = $id;
+    //     $totalData = CsrStudent::where('csr_id', $id)->count();
 
 
-        return view('admin.dashboard.dashboard', compact(
-            'actionStatus',  'totalCallToday', 'csrId', 'students', 'totalData'
-        ));
-    }
+    //     return view('admin.dashboard.dashboard', compact(
+    //         'actionStatus',  'totalCallToday', 'csrId', 'students', 'totalData'
+    //     ));
+    // }
 
 
 
     public function workshops($id){
         $workshops = getWorkshopsByBatchId($id);
+        $batch = Batch::find($id);
         
-        return view('admin.workshops.index', compact('workshops'));
+        return view('admin.workshops.index', compact('workshops', 'batch'));
     }
 
 }

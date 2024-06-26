@@ -49,15 +49,15 @@
                                         <td>{{ $ins->mob }}</td>
                                         <td>
                                             @foreach($ins->instructorCourses as $cour)
-                                                <span class="btn btn-sm btn-primary mb-2">{{ $cour->course->name }}</span>
+                                                <span class="badge badge-primary mb-2">{{ $cour->course->name }}</span>
                                                 @if($loop->iteration % 2 == 0)
                                                     <br>
                                                 @endif
                                             @endforeach
-
                                         </td>
                                         <td>
                                             <a href="{{ route('admin.edit.instructor', $ins->id) }}" class="btn btn-primary edit-instructor" ><i class="fa fa-edit"></i></a>
+                                            <a href="{{ route('admin.instructor.courses', $ins->id) }}" class="btn btn-warning " ><i class="fa fa-eye"></i></a>
                                         </td>
                                     </tr>
                                     @endforeach
