@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Task;
 use App\Models\Batch;
 use App\Models\BatchLecture;
 use App\Models\Course;
@@ -132,5 +133,22 @@ class BadgeController extends Controller
         return view('admin.batches.batch-attendance', compact('batch', 'students'));
     }
     
+    public function batchReportByCourses(){
+        $courses = Course::all();
+
+        return view('admin.batches.report.courses', compact('courses'));
+    }
+
+    public function courseBatches($courseId){
+        $batches = Batch::where('course_id', $courseId)->get();
+        $course = Course::find($courseId);
+
+        $tasks = Task::with('taskType')->orderBy('type', 'ASC')->get()->groupBy(function($task) {
+            return $task->taskType->name;   
+        });
+        // $batch = Batch::with('taskReports')->find($id);     
+
+        return view('admin.batches.report.batch-reports', compact('batches', 'course', 'tasks'));
+    }
 
 }

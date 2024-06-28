@@ -193,6 +193,9 @@
                                         <a href="{{ route('admin.dashboard') }}" ><i class="fa fa-dashboard"></i>Dashboard</a>
                                     </li>
                                 @endif
+                                <li class="{{ request()->is('admin/-dashboard') ? ' active' : '' }}">
+                                    <a href="{{ route('admin.reports.courses') }}" ><i class="fa-solid fa-file"></i>Batch Academic Reports</a>
+                                </li>
                                 <li class="{{ request()->input('status') == 2 || request()->input('status') == 1 ? 'active' : '' }}">
                                     <a href="#Tables" class="has-arrow"><i class="fa fa-users"></i><span>All Students</span></a>
                                     <ul>
@@ -221,7 +224,6 @@
                                     <li class="{{ request()->is('admin/instructors') ? ' active' : '' }}"><a href="{{ route('admin.index.instructors') }}" ><i class="fa fa-list"></i>Instructors</a></li>
                                     <li class="{{ request()->is('admin/csr-reports') ? ' active' : '' }}"><a href="{{ route('admin.csr.reports') }}" ><i class="fa fa-list"></i>CSR Reports</a></li>
                                     <li class="{{ request()->is('admin/all-tasks') ? ' active' : '' }}"><a href="{{ route('admin.index.task') }}" ><i class="fa fa-list"></i>Batch Tasks</a></li>
-                                  
                                 @endif
                                 <li class="{{ request()->is('admin/csrs') ? ' active' : '' }}"><a href="{{ route('admin.csr.index') }}" ><i class="fa fa-user"></i>CSR Management</a></li>
                                 <li class="{{ request()->is('admin/batches') ? ' active' : '' }}"><a href="{{ route('admin.index.batches') }}" ><i class="fa fa-th-list"></i>Batches</a></li>

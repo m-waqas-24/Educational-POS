@@ -35,10 +35,10 @@
                                 overflow-x: auto;
                             }
                             .table-custom th, .table-custom td {
-        min-width: 150px;
-        white-space: pre-wrap; /* To allow breaking within words */
-        word-wrap: break-word; /* To break long words */
-    }
+                                min-width: 150px;
+                                white-space: pre-wrap; /* To allow breaking within words */
+                                word-wrap: break-word; /* To break long words */
+                            }
                         </style>
                         <form action="{{ route('admin.storeReport') }}" method="POST">
                             @csrf

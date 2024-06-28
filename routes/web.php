@@ -147,6 +147,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::get('create-batch-lecture/{id?}', 'createBatchLecture')->name('create.batch-lecture');
         Route::post('store-batch-lecture/{id?}', 'storeBatchLecture')->name('store.batch-lecture');
         Route::get('batch-attendance-report/{batchId?}', 'badgeAttendanceReport')->name('batch-attendance-report');
+        Route::get('batch-reports-course-wise', 'batchReportByCourses')->name('reports.courses');
+        Route::get('course-all-batch-reports/{courseId?}', 'courseBatches')->name('reports.batches');
     });
 
     Route::controller(BankController::class)->group(function(){

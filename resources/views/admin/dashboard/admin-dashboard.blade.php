@@ -292,6 +292,274 @@
                     </div>
                 </div>
             </div> --}}
+
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="header">
+                        <h2>COURSES REPORTS BY BATCH
+                        </h2>
+                    </div>
+                    <div class="body">
+                        <div id="wizard_vertical2">
+                            @foreach($courses as $course)
+                                <h2 class="text-white" style="color: #fff !important;">{{ $course->name }}</h2>
+                                <section>
+                                    <div class="row clearfix row-deck">
+                                        @if($course->batches->isEmpty())
+                                            <span class="text-danger">
+                                                Batches Not found!
+                                            </span>
+                                        @else
+                                        <ul class="nav nav-tabs-new2">
+                                         
+                                            @foreach($course->batches as $batch)
+                                                <li class="nav-item">
+                                                    <a class="nav-link {{ $loop->first ? 'active show' : '' }}" data-toggle="tab" href="#batch{{ $batch->id }}">Batch {{ $batch->number }}</a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                        <div class="tab-content">
+                                            @foreach($course->batches as $batch)
+                                                @php
+                                                    $studentCourses = \App\Models\StudentCourse::where(['batch_id' => $batch->id, 'is_continued' => 1])->get();
+                                                    $totalStudentsInCourse = \App\Models\StudentCourse::where(['batch_id' => $batch->id, 'course_id' => $course->id])->count();
+                                                    $discontinuedStudentCourses = \App\Models\StudentCourse::where(['batch_id' => $batch->id, 'is_continued' => 0])->get();
+                                                    //total fees of students
+                                                    $totalFees = $studentCourses->sum('fee');
+                                                    $totalRecovered = sumConfirmedPayments($studentCourses);
+                                                    //csr student count
+                                                    $csrStudentCounts = $studentCourses->groupBy('student.csr.name')
+                                                    ->map->count()
+                                                    ->toArray();
+                                                    // dd($csrStudentCounts);
+                                                    $workshops = getWorkshopsByBatchId($batch->id);
+                                                @endphp
+                                                <div class="tab-pane {{ $loop->first ? 'active show' : '' }}" id="batch{{ $batch->id }}">
+
+                                                    <div class="row clearfix">
+
+                                                        <div class="col-lg-12">
+                                                            <div class="card">
+                                                                <div class="body">
+                                                                    <ul class="nav nav-tabs">
+                                                                            <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#Profile-withicon"><i class="fa fa-dashboard mr-2"></i> Batch Report</a></li>
+                                                                    </ul>
+                                                                    <div class="tab-content" style="padding:0px; padding-top: 15px">
+                                                                      
+                                            
+                                                                        <div class="tab-pane active show" id="Profile-withicon">
+                                                                            <div class="row clearfix" >
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <a href="{{ route('admin.students.by.status', ['status' => null, 'batch_id' => $batch->id]) }}">
+                                                                                        <div class="card top_counter">
+                                                                                            <div class="body">
+                                                                                                <div class="icon text-info"><i class="fa fa-users"></i> </div>
+                                                                                                <div class="content">
+                                                                                                    <div class="text">Total Students</div>
+                                                                                                    <h5 class="number">{{ $totalStudentsInCourse }}</h5>
+                                                                                                </div>
+                                                                                            </div>                        
+                                                                                        </div>
+                                                                                    </a>
+                                                                                </div>
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <a href="{{ route('admin.students.by.status', ['status' => 1, 'batch_id' => $batch->id]) }}">
+                                                                                        <div class="card top_counter">
+                                                                                            <div class="body">
+                                                                                                <div class="icon text-warning"><i class="fa fa-user"></i> </div>
+                                                                                                <div class="content">
+                                                                                                    <div class="text">Paid Students</div>
+                                                                                                    <h5 class="number">{{ formatPrice($studentCourses->where('status_id',1)->count()) }}</h5>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </a>
+                                                                                </div>
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <a href="{{ route('admin.students.by.status', ['status' => 2, 'batch_id' => $batch->id]) }}">
+                                                                                        <div class="card top_counter">
+                                                                                            <div class="body">
+                                                                                                <div class="icon text-danger"><i class="fa fa-user"></i> </div>
+                                                                                                <div class="content">
+                                                                                                    <div class="text">Partial Students</div>
+                                                                                                    <h5 class="number">{{ formatPrice($studentCourses->where('status_id',2)->count()) }}</h5>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </a>
+                                                                                </div>
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <a href="{{ route('admin.index.workshops', $batch->id) }}">
+                                                                                        <div class="card top_counter" data-toggle="modal" data-target="#WorkshopModal_{{$batch->id }}">
+                                                                                            <div class="body">
+                                                                                                <div class="icon text-info"><i class="fa fa-desktop"></i> </div>
+                                                                                                <div class="content">
+                                                                                                    <div class="text">Workshops</div>
+                                                                                                    <h5 class="number">{{ count($workshops) }}</h5>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </a>
+                                                                                </div>
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <div class="card top_counter">
+                                                                                        <div class="body">
+                                                                                            <div class="icon text-danger"><i class="fa fa-bars"></i> </div>
+                                                                                            <div class="content">
+                                                                                                <div class="text">Orientation</div>
+                                                                                                <h5 class="number">0</h5>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <a href="{{ route('admin.students.by.status', ['status' => 3, 'batch_id' => $batch->id]) }}">
+                                                                                        <div class="card top_counter">
+                                                                                            <div class="body">
+                                                                                                <div class="icon text-danger"><i class="fa fa-ban"></i> </div>
+                                                                                                <div class="content">
+                                                                                                    <div class="text">Left Student</div>
+                                                                                                    <h5 class="number"> {{ $discontinuedStudentCourses->count() }} </h5>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </a>
+                                                                                </div>
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <div class="card top_counter">
+                                                                                        <div class="body">
+                                                                                            <div class="icon text-danger"><i class="fa fa-calendar"></i> </div>
+                                                                                            <div class="content">
+                                                                                                <div class="text">Batch Start Date</div>
+                                                                                                <h5 class="number"> {{ \Carbon\Carbon::parse($batch->starting_date)->format('d F, Y') }} </h5>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <div class="card top_counter">
+                                                                                        <div class="body">
+                                                                                            <div class="icon text-danger"><i class="fa fa-close"></i> </div>
+                                                                                            <div class="content">
+                                                                                                <div class="text">Batch Ending Date</div>
+                                                                                                <h5 class="number"> {{ \Carbon\Carbon::parse($batch->ending_date)->format('d F, Y') }} </h5>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <div class="card top_counter">
+                                                                                        <div class="body">
+                                                                                            <div class="icon text-danger"><i class="fa fa-clock  "></i> </div>
+                                                                                            <div class="content">
+                                                                                                <div class="text">Batch Duration</div>
+                                                                                                <h5 class="number"> {{ $batch->course->duration }} </h5>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <div class="card top_counter">
+                                                                                        <div class="body">
+                                                                                            <div class="icon text-danger"><i class="fa fa-clock  "></i> </div>
+                                                                                            <div class="content">
+                                                                                                <div class="text">Admission Opening Date</div>
+                                                                                                <h5 class="number"> {{ $batch->adm_opening_date ? \Carbon\Carbon::parse($batch->adm_opening_date)->format('d F, Y')  : ''}} </h5>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-lg-4 col-md-6">
+                                                                                    <div class="card top_counter">
+                                                                                        <div class="body">
+                                                                                            <div class="icon text-danger"><i class="fa fa-clock  "></i> </div>
+                                                                                            <div class="content">
+                                                                                                <div class="text">Admission Closing Date</div>
+                                                                                                <h5 class="number"> {{ $batch->adm_closing_date ? \Carbon\Carbon::parse($batch->adm_closing_date)->format('d F, Y') : '' }} </h5>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                {{-- <div class="col-md-12">
+                                                                                    <div class="card">
+                                                                                        <div class="header">
+                                                                                            <h2>Students Enroll By Csr </h2>
+                                                                                        </div>
+                                                                                        <div class="body">
+                                                                                            <div id="Google-Analytics-Dashboard" style="height: 230px"></div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div> --}}
+                                                                                @if(getUserType() == 'superadmin')
+                                                                                <div class="col-lg-6 col-md-12">
+                                                                                    <div class="card">
+                                                                                        <div class="header">
+                                                                                            <h2>Fees Report</h2>
+                                                                                        </div>
+                                                                                        <div class="body">
+                                                                                            <ul class="list-unstyled">
+                                                                                                @php
+                                                                                                    if ($totalFees > 0) {
+                                                                                                        $percentageRecovered = ($totalRecovered / $totalFees) * 100;
+                                                                                                    } else {
+                                                                                                        // Handle the case where totalFees is 0 to avoid division by zero
+                                                                                                        $percentageRecovered = 0;
+                                                                                                    }
+                                                                                                    // Calculate the remaining percentage
+                                                                                                    $totalReamining = $totalFees - $totalRecovered;
+                                                                                                    $percentageRemaining = 100 - $percentageRecovered;
+                                                                                                @endphp 
+                                                                                                <li>
+                                                                                                    <h6 class="d-flex justify-content-between align-items-center">
+                                                                                                        <span>{{ formatPrice($totalFees) }}</span>
+                                                                                                        <span class="text-muted font-14">Batch Total Fees</span>
+                                                                                                    </h6>
+                                                                                                    <div class="progress progress-xs progress-transparent custom-color-blue">
+                                                                                                        <div class="progress-bar" data-transitiongoal="100"></div>
+                                                                                                    </div>
+                                                                                                </li>
+                                                                                                <li>
+                                                                                                    <h6 class="d-flex justify-content-between align-items-center">
+                                                                                                        <span>{{ formatPrice($totalRecovered) }}</span>
+                                                                                                        <span class="text-muted font-14">Total Received</span>
+                                                                                                    </h6>
+                                                                                                    <div class="progress progress-xs progress-transparent custom-color-purple">
+                                                                                                        <div class="progress-bar" data-transitiongoal="{{ $percentageRecovered }}"></div>
+                                                                                                    </div>
+                                                                                                </li>                                   
+                                                                                                <li>
+                                                                                                    <h6 class="d-flex justify-content-between align-items-center">
+                                                                                                        <span>{{ formatPrice($totalReamining) }}</span>
+                                                                                                        <span class="text-muted font-14">Total Remaining</span>
+                                                                                                    </h6>
+                                                                                                    <div class="progress progress-xs progress-transparent custom-color-yellow">
+                                                                                                        <div class="progress-bar" data-transitiongoal="{{ $percentageRemaining }}"></div>
+                                                                                                    </div>
+                                                                                                </li>
+                                                                                            </ul>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        @endif
+                                    </div>
+                                </section>
+                            @endforeach
+                        </div>
+                    </div>
+                    
+                </div>                
+            </div>
             
 
         </div>            
