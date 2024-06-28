@@ -60,54 +60,56 @@ if(!function_exists('formatPrice')){
     }
 
     function oldPartialStudents(){
-        $user = Auth::user();
-        $userId = $user->id;
         $fortyFiveDaysAgo = Carbon::today()->subDays(45);
-        $student = 0;
     
-        if($user->type == 'csr'){
-            $student = StudentCourse::where(['status_id' => 2, 'is_confirmed' => 1, 'is_continued' => 1])
-                ->whereHas('student', function ($query) use ($userId) {
-                    $query->where('csr_id', $userId);
-                })
-                ->whereHas('coursePayments', function ($query) use ($fortyFiveDaysAgo) {
-                    $query->where('payment_date_first', '<', $fortyFiveDaysAgo);
-                })
-                ->count();
-        } else {
-            $student = StudentCourse::where(['status_id' => 2, 'is_confirmed' => 1, 'is_continued' => 1])
-                ->whereHas('coursePayments', function ($query) use ($fortyFiveDaysAgo) {
-                    $query->where('payment_date_first', '<', $fortyFiveDaysAgo);
-                })
-                ->count();
+        $query = StudentCourse::where(['status_id' => 2, 'is_confirmed' => 1, 'is_continued' => 1])
+            ->whereHas('coursePayments', function ($query) {
+                $query->orderBy('payment_date_first', 'ASC');
+            })
+            ->with(['coursePayments' => function ($query) {
+                $query->orderBy('payment_date_first', 'ASC');
+            }]);
+             
+        if (getUserType() == 'csr' && Auth::user()->role_id == null) {
+            $authenticatedUserId = Auth::id();
+            $query->whereHas('student', function ($query) use ($authenticatedUserId) {
+                $query->where('csr_id', $authenticatedUserId);
+            });
         }
+
+        $studentCourses = $query->whereHas('batch', function ($query) use ($fortyFiveDaysAgo) {
+            $query->whereDate('starting_date', '<', $fortyFiveDaysAgo);
+        });
+
+        $student = $studentCourses->count();
 
         return $student;
     }
     
     function newPartialStudents(){
-        $user = Auth::user();
-        $userId = $user->id;
         $fortyFiveDaysAgo = Carbon::today()->subDays(45);
-        $student = 0;
     
-        if($user->type == 'csr'){
-            $student = StudentCourse::where(['status_id' => 2, 'is_confirmed' => 1, 'is_continued' => 1])
-                ->whereHas('student', function ($query) use ($userId) {
-                    $query->where('csr_id', $userId);
-                })
-                ->whereHas('coursePayments', function ($query) use ($fortyFiveDaysAgo) {
-                    $query->where('payment_date_first', '>=', $fortyFiveDaysAgo);
-                })
-                ->count();
-        } else {
-            $student = StudentCourse::where(['status_id' => 2, 'is_confirmed' => 1, 'is_continued' => 1])
-                ->whereHas('coursePayments', function ($query) use ($fortyFiveDaysAgo) {
-                    $query->where('payment_date_first', '>=', $fortyFiveDaysAgo);
-                })
-                ->count();
+        $query = StudentCourse::where(['status_id' => 2, 'is_confirmed' => 1, 'is_continued' => 1])
+            ->whereHas('coursePayments', function ($query) {
+                $query->orderBy('payment_date_first', 'ASC');
+            })
+            ->with(['coursePayments' => function ($query) {
+                $query->orderBy('payment_date_first', 'ASC');
+            }]);
+             
+        if (getUserType() == 'csr' && Auth::user()->role_id == null) {
+            $authenticatedUserId = Auth::id();
+            $query->whereHas('student', function ($query) use ($authenticatedUserId) {
+                $query->where('csr_id', $authenticatedUserId);
+            });
         }
+
+        $studentCourses =  $query->whereHas('batch', function ($query) use ($fortyFiveDaysAgo) {
+            $query->whereDate('starting_date', '>=', $fortyFiveDaysAgo);
+        });
     
+        $student = $studentCourses->count();
+
         return $student;
     }
     

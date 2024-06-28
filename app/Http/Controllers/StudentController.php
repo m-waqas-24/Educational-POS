@@ -27,49 +27,66 @@ class StudentController extends Controller
 
     public function index(Request $request)
     {
-        $today = Carbon::today();
+        $status = $request->status;
+        $category = $request->category ?? null;
         $from = null;
         $s_csr = null;
         $to = null;
         $id = null;
-        $status = $request->status;
-        $category = $request->category ?? null;
+    
+        // Fetch current authenticated user
+        $authenticatedUser = Auth::user();
+    
+        // Fetch all CSR users who are active
         $csrs = User::where(['type' => 'csr', 'status' => 1])->get();
+    
+        // Fetch all courses
         $courses = Course::all();
     
+        // Fetch all payment modes
+        $modes = Bank::all();
+    
+        // Fetch all batches
+        $batches = Batch::all();
+    
+        // Calculate 45 days ago from today
         $fortyFiveDaysAgo = Carbon::today()->subDays(45);
     
-        $query = StudentCourse::where(['status_id' => $status, 'is_confirmed' => 1, 'is_continued' => 1])
-            ->whereHas('coursePayments', function ($query) {
-                $query->orderBy('payment_date_first', 'ASC');
-            })
-            ->with(['coursePayments' => function ($query) {
-                $query->orderBy('payment_date_first', 'ASC');
-            }]);
-             
-        if (getUserType() == 'csr' && Auth::user()->role_id == null) {
+        // Base query for fetching student courses
+        $query = StudentCourse::where([
+            'status_id' => $status,
+            'is_confirmed' => 1,
+            'is_continued' => 1,
+        ])->whereHas('coursePayments', function ($query) {
+            $query->orderBy('payment_date_first', 'ASC');
+        })->with(['coursePayments' => function ($query) {
+            $query->orderBy('payment_date_first', 'ASC');
+        }]);
+    
+        // Filter based on user role (CSR)
+        if (getUserType() == 'csr' && $authenticatedUser->role_id == null) {
             $authenticatedUserId = Auth::id();
             $query->whereHas('student', function ($query) use ($authenticatedUserId) {
                 $query->where('csr_id', $authenticatedUserId);
             });
         }
     
+        // Apply additional filters based on category ('new' or 'old')
         if ($category == 'new') {
-            $studentCourses = $query->get()->filter(function ($studentCourse) use ($fortyFiveDaysAgo) {
-                return $studentCourse->coursePayments->first()->payment_date_first >= $fortyFiveDaysAgo;
+            $query->whereHas('batch', function ($query) use ($fortyFiveDaysAgo) {
+                $query->whereDate('starting_date', '>=', $fortyFiveDaysAgo);
             });
         } elseif ($category == 'old') {
-            $studentCourses = $query->get()->filter(function ($studentCourse) use ($fortyFiveDaysAgo) {
-                return $studentCourse->coursePayments->first()->payment_date_first < $fortyFiveDaysAgo;
+            $query->whereHas('batch', function ($query) use ($fortyFiveDaysAgo) {
+                $query->whereDate('starting_date', '<', $fortyFiveDaysAgo);
             });
-        } else {
-            $studentCourses = $query->get();
         }
     
-        $modes = Bank::all();
-        $batches = Batch::all();
+        // Fetch the filtered student courses
+        $studentCourses = $query->get();
     
-        return view('admin.students.index', compact('studentCourses', 'courses', 'id', 'status', 'csrs', 'from', 'to', 's_csr', 'modes', 'batches'));
+        // Return the view with necessary data
+        return view('admin.students.index', compact('studentCourses', 'courses', 'status', 'csrs', 'modes', 'batches', 's_csr', 'from','to', 'id'));
     }
 
     public function disContinuedStudent(){

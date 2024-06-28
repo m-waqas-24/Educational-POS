@@ -39,7 +39,8 @@
                                       <th>Batch No.</th>
                                       <th>Starting Date</th>
                                       <th>Ending Date</th>
-                                      <th>Admission Ending Date</th>
+                                      <th>Admission Opening Date</th>
+                                      <th>Admission Closing Date</th>
                                       <th>Active Status</th>
                                       <th>Open Status</th>
                                       <th>Action</th>
@@ -50,9 +51,10 @@
                                     <tr>
                                         <td>{{$batch->course->name}}</td>
                                         <td>{{$batch->number}}</td>
-                                        <td>{{$batch->starting_date}}</td>
-                                        <td>{{$batch->ending_date}}</td>
-                                        <td>{{$batch->adm_closing_date}}</td>
+                                        <td>{{ \Carbon\Carbon::parse($batch->starting_date)->format('d F, Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($batch->ending_date)->format('d F, Y') }}</td>
+                                        <td>{{ $batch->adm_opening_date ? \Carbon\Carbon::parse($batch->adm_opening_date)->format('d F, Y')  : ''}} </td>
+                                        <td>{{ $batch->adm_closing_date ? \Carbon\Carbon::parse($batch->adm_closing_date)->format('d F, Y') : '' }}</td>
                                         <td>
                                           @if ($batch->is_active==1)
                                               <span class="badge badge-success">Active</span>

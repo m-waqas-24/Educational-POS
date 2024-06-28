@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\CsrActionStatus;
 use App\Models\Admin\CsrStudent;
 use App\Models\Batch;
+use App\Models\Bank;
 use App\Models\Course;
 use App\Models\DataDistributionRecord;
 use App\Models\ImportStudent;
@@ -21,8 +22,23 @@ class IndexController extends Controller
 {
     public function dashboard(Request $request){
 
-        $from = $request->from ?? null;
-        $to = $request->to ?? null;
+        // dd($request->all());
+        if ($request->filterdates == 'last_week') {
+            $from = Carbon::now()->subWeek()->startOfWeek(); // Start of last week
+            $to = Carbon::now()->subWeek()->endOfWeek(); // End of last week
+        } elseif ($request->filterdates == 'current_month') {
+            $from = Carbon::now()->startOfMonth(); // Start of current month
+            $to = Carbon::now()->endOfMonth(); // End of current month
+        } elseif ($request->filterdates == 'last_threedays') {
+            $from = Carbon::now()->subDays(2)->startOfDay(); // Start of 3 days ago
+            $to = Carbon::now()->endOfDay(); // End of today
+        } else {
+            // Default case or if specific handling is needed
+            $from = $request->from ?? null;
+            $to = $request->to ?? null;
+        }
+        // dd($from,$to);
+       
         if(getUserType() == 'csr'){
 
             $actionStatus = CsrActionStatus::all();
@@ -381,6 +397,42 @@ class IndexController extends Controller
         $batch = Batch::find($id);
         
         return view('admin.workshops.index', compact('workshops', 'batch'));
+    }
+
+    public function filterCsrStudents(Request $req){
+        // dd($req->all()); 
+        $csrId = $req->csrId;
+        $from = \Carbon\Carbon::parse($req->from)->startOfDay();
+        $to = \Carbon\Carbon::parse($req->to)->endOfDay();
+        $status_id = $req->status_id;
+    
+
+        $studentCourses = \App\Models\StudentCourse::query()
+            ->select('student_courses.*') // Select all columns from the student_courses table
+            ->join('students', 'student_courses.student_id', '=', 'students.id')
+            ->join(DB::raw('(SELECT student_course_id, MIN(payment_date_first) AS first_payment_date
+                            FROM student_course_payments
+                            GROUP BY student_course_id) as scp'), 'student_courses.id', '=', 'scp.student_course_id')
+            ->where('students.csr_id', $csrId)
+            ->where('student_courses.status_id', $status_id);
+        
+        // Apply date range filter if both $from and $to are provided
+        if ($from && $to) {
+            $studentCourses->whereDate('scp.first_payment_date', '>=', \Carbon\Carbon::parse($from)->startOfDay())
+                        ->whereDate('scp.first_payment_date', '<=', \Carbon\Carbon::parse($to)->endOfDay()); // Use endOfDay() to include the full day
+        }
+    
+        $studentCourses = $studentCourses->get();  
+        
+        $modes = Bank::all();
+        $batches = Batch::all();
+        $s_csr = null;
+        $status = $req->status_id;
+        $id = null;
+        $csrs = User::where(['type' => 'csr', 'status' => 1])->get();
+        $courses = Course::all();
+    
+        return view('admin.students.index', compact('studentCourses', 'courses', 'id', 'status', 'csrs', 'from', 'to', 's_csr', 'modes', 'batches'));
     }
 
 }

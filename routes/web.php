@@ -46,6 +46,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'revalidate
         Route::get('dashboard', 'dashboard')->name('dashboard');
         Route::get('csr-dashboard/{id?}', 'adminViewCsrDashboard')->name('csr.dashboard');
         Route::get('workshops/{id?}', 'workshops')->name('index.workshops');
+        Route::get('filter-csr-activity-students', 'filterCsrStudents')->name('filter.csr-activity.students');
     });
 
     Route::controller(ProfileController::class)->group(function(){
